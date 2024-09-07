@@ -84,4 +84,27 @@ Glowify adalah proyek Django sederhana sebagai tugas mata kuliah Pemrograman Ber
     python manage.py runserver
 15. Melakukan deploy app ke Pacil Web Server (PWS).
 
-    
+### Jawaban dari Pertanyaan
+#### 1. Arsitektur MTV Django
+![urls py (1)](https://github.com/user-attachments/assets/2375606a-f322-456b-85d3-db53d7dddc91)
+Ketika seorang user mengirimkan request melalui browser, request tersebut akan pertama kali diterima oleh `urls.py`. File    ini berfungsi untuk menentukan URL mana yang cocok dengan request yang dikirim, dan kemudian mengarahkannya ke fungsi        view yang tepat di `views.py`. Setiap URL dipetakan ke fungsi tertentu di `views.py` yang akan menangani permintaan          tersebut.
+   
+Di dalam `views.py`, logika aplikasi dijalankan, seperti memvalidasi data, mengambil informasi dari database, atau           memproses input dari user. Jika perlu berinteraksi dengan database, `views.py` akan menggunakan `models.py`, yang            bertindak sebagai representasi data yang disimpan dalam database. Setelah data diambil atau diproses, view akan              menggunakan file template HTML dari folder templates untuk menyajikan tampilan yang user lihat. Akhirnya, halaman HTML       yang dirender tersebut dikirim kembali ke browser user sebagai response. Dengan cara ini, `urls.py`, `views.py`,             `models.py`, dan template HTML bekerja sama untuk memproses dan mengirimkan request serta response dalam aplikasi Django.
+
+#### 2. Fungsi git di pengembangan software
+Git adalah alat version control yang umum dibutuhkan dalam software development. Fusngsinya untuk membantu developer
+mengelola dan melacak perubahan pada kode secara terorganisir. Dengan Git, setiap perubahan dalam proyek akan tersimpan      di dalam repositori, sehingga pengembang dapat melihat riwayat perubahan, membandingkan versi kode yang berbeda, dan         mengembalikan kode ke versi sebelumnya jika diperlukan. Fitur ini membantu kolaborasi antar tim lebih mudah karena          setiap anggota tim dapat bekerja pada versi kode yang sama tanpa harus menyatukan perubahan secara manual.
+
+Fitur unggulan lainnya dari Git adalah kemampuan untuk membuat cabang (branch) dari proyek utama. Dengan branch, developer dapat bekerja pada fitur atau perbaikan bug secara terpisah tanpa mengganggu kode yang sudah diyakini stabil. Setelah pekerjaan pada cabang selesai, cabang tersebut bisa digabungkan kembali ke proyek utama. Dengan git, setiap orang dapat fokus pada bagian mereka tanpa mempengaruhi pekerjaan orang lain.
+
+#### 3. Mengapa Django untuk permulaan pembelajaran software?
+Dari pengalaman saya menggunakan framework full-stack seperti Node.js, saya merasa Django lebih menawarkan kepraktisan. Salah satu alasan utama adalah karena Django menggunakan Python, yang sering menjadi bahasa pertama bagi banyak orang yang ingin belajar pemrograman. Dengan Python yang terkenal mudah dipahami, Django menjadi pilihan yang lebih natural bagi pemula yang ingin mengembangkan aplikasi web.
+
+Selain itu, setup untuk membuat aplikasi web penuh di Django jauh lebih cepat dibandingkan Node.js. Django sudah menyediakan banyak fitur bawaan, seperti sistem autentikasi, routing, dan manajemen database, yang memungkinkan pengembang langsung fokus pada logika tanpa harus menyiapkan banyak komponen dari awal. Keuntungannya, Django juga menggabungkan back-end dan front-end dalam satu framework, sehingga tidak perlu menggunakan dua framework terpisah untuk keduanya. Hal ini sangat menghemat waktu dan tenaga, terutama bagi yang baru memulai belajar software development.
+
+
+
+   
+
+
+   
