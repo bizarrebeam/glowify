@@ -68,12 +68,12 @@
     ```bash
     <h1>Glowify your skin!</h1>
 
-   <h5>Name: </h5>
-   <p>{{ name }}<p>
-   <h5>NPM: </h5>
-   <p>{{ npm }}<p>
-   <h5>Class: </h5>
-   <p>{{ class }}<p>
+      <h5>Name: </h5>
+      <p>{{ name }}<p>
+      <h5>NPM: </h5>
+      <p>{{ npm }}<p>
+      <h5>Class: </h5>
+      <p>{{ class }}<p>
 14. Menambahkan fungsi untuk me-render laman main pada file `views.py`:
     ```bash
     from django.shortcuts import render
@@ -116,7 +116,7 @@ Fitur unggulan lainnya dari Git adalah kemampuan untuk membuat cabang (branch) d
 #### 3. Mengapa Django untuk permulaan pembelajaran software?
 Dari pengalaman saya menggunakan framework full-stack seperti Node.js, saya merasa Django lebih menawarkan kepraktisan. Salah satu alasan utama adalah karena Django menggunakan Python, yang sering menjadi bahasa pertama bagi banyak orang yang ingin belajar pemrograman. Dengan Python yang terkenal readable seperti pseudocode dan juga beginner-friendly, Django menjadi pilihan yang natural bagi pemula yang ingin mencoba terjun ke web development
 
-Selain itu, setup untuk membuat aplikasi web penuh di Django relatif jauh lebih cepat dibandingkan Node.js. Django sudah menyediakan banyak fitur bawaan, seperti sistem autentikasi, routing, dan manajemen database, sehingga developer dapat langsung fokus pada logika tanpa harus menyiapkan banyak komponen dari awal.Django juga menggabungkan back-end dan front-end dalam satu framework, sehingga tidak perlu menggunakan dua framework terpisah untuk full-stack development. Poin ini menghemat waktu dan tenaga dalam hal setup, terutama bagi yang baru memulai belajar software development.
+Selain itu, setup untuk membuat aplikasi web penuh di Django relatif jauh lebih cepat dibandingkan Node.js. Django sudah menyediakan banyak fitur bawaan, seperti sistem autentikasi, routing, dan manajemen database, sehingga developer dapat langsung fokus pada logika tanpa harus menyiapkan banyak komponen dari awal. Django juga menggabungkan back-end dan front-end dalam satu framework, sehingga tidak perlu menggunakan dua framework terpisah untuk full-stack development. Poin ini menghemat waktu dan tenaga dalam hal setup, terutama bagi yang baru memulai belajar software development.
 
 ### 4. Mengapa model pada Django disebut ORM?
 Model dalam Django adalah representasi data yang ada di dalam database. Model biasanya berbentuk kelas Python yang mendefinisikan struktur data relasional, seperti kolom, tipe data, dan aturan-aturan terkait datanya. Model berfungsi sebagai penghubung antara logika web app dengan data yang disimpan di database.
