@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-kght1bog#wdw_@r-22eudliu-cro*#=(1@*nw_r(=eb5ktxl9a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "adelya-amanda-glowify.pbp.cs.ui.ac.id"]
 
 
 # Application definition
