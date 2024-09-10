@@ -105,6 +105,7 @@
     ```bash
     python manage.py runserver
 17. Melakukan deploy app ke Pacil Web Server (PWS).
+    Project telah dideploy di PWS melalui [ http://adelya-amanda-glowify.pbp.cs.ui.ac.id/ ]
 
 ### Jawaban dari Pertanyaan
 #### 1. Arsitektur MTV Django
