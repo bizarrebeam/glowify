@@ -129,6 +129,133 @@ Model dalam Django adalah representasi data yang ada di dalam database. Model bi
 
 Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek Python (seperti kelas dan konsep OOP) dengan tabel di database. ORM ini berbeda dengan pengalaman saya menggunakan bahasa dan framework lain, di mana untuk berinteraksi dengan database saya harus menulis perintah SQL secara langsung untuk melakukan operasi CRUD. Django dapat melakukan manipulasi database menggunakan kode Python tanpa perlu menulis query SQL secara manual. ORM membantu proses pengelolaan data tanpa perlu memahami detail bahasa SQL.
 
+## Tugas 3
+### Implementasi Form pada Django
+1. Membuat `forms.py` di direktori `main` dengan isi:
+   ```bash
+   from django import forms
+   from .models import Product
+   
+   class ProductForm(forms.ModelForm):
+       class Meta:
+           model = Product
+           fields = ['name', 'price', 'description', 'volume']
+3. Menambahkan fungsi `create_product` untuk menambha entri database di `views.py` di direktori main:
+   ```bash
+   def create_product(request):
+       form = ProductForm(request.POST or None)
+   
+       if form.is_valid():
+           form.save()
+           return redirect('main:show_main')
+       
+       context = {'form': form}    
+       return render(request, "create_product.html", context)
+4. Mengimplementasikan form yang sudah dibuat ke dalam laman baru dengan template html yang baru `create_product.html`:
+   ```bash
+   {% extends 'base.html' %} 
+   {% block content %}
+   
+   <h1>Add new product!</h1>
+   <form method="POST">
+       {% csrf_token %}
+       <table>
+           {{form.as_table}}
+           <tr>
+               <td></td>
+               <td>
+                   <input type="submit" value="Add product" />
+               </td>
+           </tr>
+       </table>
+   </form>
+   
+   {% endblock %}
+5. Routing URL ke page yang sesuai di `urls.py` pada adirektori `main`:
+   ```bash
+   urlpatterns = [
+       ...
+       path('create-product', create_product, name='create_product'),
+       ...
+   ]
+6. Menambahkan folder `templates` di direktori utama dan `base.html` sebagai base dari halaman-halaman lainnya.
+7. Menambahkan lokasi folder `templates` ke `settings.py` di direktori `glowify`:
+   ```bash
+   ...
+   'DIRS': [BASE_DIR / 'templates'],
+   ...
+8. Mengimplementasikan database ke dalam halaman utama `main.html`, yang juga menjadi perpanjangan dari `base.html` di direktori utama:
+   ```bash
+   {% if not products %}
+   <p>Product not found T_T</p>
+   {% else %}
+   <table>
+       <tr>
+           <th>Product Name</th>
+           <th>Price</th>
+           <th>Description</th>
+           <th>Volume (ml)</th>
+       </tr>
+   
+       {% for product in products %}
+       <tr>
+           <td>{{ product.name }}</td>
+           <td>{{ product.price }}</td>
+           <td>{{ product.description }}</td>
+           <td>{{ product.volume }}</td>
+       </tr>
+       {% endfor %}
+   </table>
+   {% endif %}
+   
+   <br />
+   
+   <a href="{% url 'main:create_product' %}">
+       <button>Add new product!</button>
+   </a>
+9. Menambahkan fungsi-fungsi yang diperlukan untuk menampilkan JSON dan XML, baik secara keseluruhan ataupun berdasarkan PK entri database yang sesuai di `views.py`
+   ```bash
+   def show_xml(request):
+       data = Product.objects.all()
+       return HttpResponse(serializers.serialize('xml', data), content_type='application/xml')
+   
+   def show_json(request):
+       data = Product.objects.all()
+       return HttpResponse(serializers.serialize('json', data), content_type='application/json')
+   
+   def show_xml_by_id(request, id):
+       data = Product.objects.filter(pk=id)
+       return HttpResponse(serializers.serialize('xml', data), content_type='application/xml')
+   
+   def show_json_by_id(request, id):
+       data = Product.objects.filter(pk=id)
+       return HttpResponse(serializers.serialize('json', data), content_type='application/json')    
+10. Melakukan routing kembali URL yang sesuai i file `urls.py`:
+   ```bash
+   urlpatterns = [
+       ...
+       path('xml/', show_xml, name='show_xml'),
+       path('json/', show_json, name='show_json'),
+       path('xml/<str:id>', show_xml_by_id, name='show_xml_by_id'),
+       path('json/<str:id>', show_json_by_id, name='show_json_by_id')
+   ]
+11. Melakukan test aplikasi pada localhost, cek apakah ada error. Cek juga endpoint yang sesuai, baik tidak ataupun menggunakan PK:
+   ```bash
+   python manage.py runserver
+### Test di Postman
+1. JSON
+![image](https://github.com/user-attachments/assets/a24d8e4f-f3a3-4275-b51b-91f0e7a87f49)
+
+2. JSON by PK
+![image](https://github.com/user-attachments/assets/1e40ca32-c143-4bfc-a23c-ad67b789f415)
+
+3. XML
+![image](https://github.com/user-attachments/assets/a76119a7-401d-4c11-90e7-9d63e24e602e)
+
+4. XML by PK
+![image](https://github.com/user-attachments/assets/77247af3-3ab5-46bb-a25c-668f576ab0e4)
+
+
 
 
 
