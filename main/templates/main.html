@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <h1>Glowify your skin!</h1>
 
 <h5>Name: </h5>
@@ -6,3 +8,33 @@
 <p>{{ npm }}<p>
 <h5>Class: </h5>
 <p>{{ class }}<p>
+
+{% if not products %}
+<p>Product not found T_T</p>
+{% else %}
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Volume (ml)</th>
+    </tr>
+
+    {% for product in products %}
+    <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.description }}</td>
+        <td>{{ product.volume }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<br />
+
+<a href="{% url 'main:create_product' %}">
+    <button>Add new product!</button>
+</a>
+
+{% endblock content %}
