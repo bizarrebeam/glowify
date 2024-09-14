@@ -107,7 +107,7 @@
 17. Melakukan deploy app ke Pacil Web Server (PWS).
     Project telah dideploy di PWS melalui [ http://adelya-amanda-glowify.pbp.cs.ui.ac.id/ ]
 
-### Jawaban dari Pertanyaan
+### Jawaban dari Pertanyaan Tugas 2
 #### 1. Arsitektur MTV Django
 ![urls py (1)](https://github.com/user-attachments/assets/2375606a-f322-456b-85d3-db53d7dddc91)
 Ketika user mengirimkan request melalui browser, request tersebut pada pertama kali akan diterima oleh `urls.py`. File ini berfungsi untuk menentukan URL mana yang cocok dengan request yang dikirim, kemudian mengarahkannya ke fungsi view yang sesuai di `views.py`. Setiap URL telah dipetakan ke fungsi tertentu di `views.py`.
@@ -242,6 +242,7 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
 11. Melakukan test aplikasi pada localhost, cek apakah ada error. Cek juga endpoint yang sesuai, baik tidak ataupun menggunakan PK:
    ```bash
    python manage.py runserver
+
 ### Test di Postman
 1. JSON
 ![image](https://github.com/user-attachments/assets/a24d8e4f-f3a3-4275-b51b-91f0e7a87f49)
@@ -255,6 +256,18 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
 4. XML by PK
 ![image](https://github.com/user-attachments/assets/77247af3-3ab5-46bb-a25c-668f576ab0e4)
 
+### Jawaban dari Pertanyaan Tugas 3
+#### 1. Mengapa memerlukan data delivery dalam mengimplementasikan platform
+Misalkan untuk user e-commerce `glowify`, user akan expect untuk mendapatkan lists dari produk terbaru dan melihat  stok barang yang tersedia. Misalkan saya, sebagai salah satu seller dari `glowify`, tentu saya ingin menuliskan deskripsi produk up-to-date agar pembeli saya mendapatkan review produk yang paling relevan, atau terus mengupdate harga dari produk yang saya jual seiring waktu. Saya juga perlu mengupdate stok yang tersedia di inventori saya. Dengan demikian, data delivery berguna untuk user experience. User memerlukan update data yang dinamis, jadi data perlu diperbaharui secara terus menerus, menyanggupi request yang masuk.
+Melalui data delivery, setiap produk yang saya update di `glowify` telah memiliki identitas (ID) nya sendiri. Namun saya dapat merasa nyaman sebagai penjual, karena tahu ID nya bukanlah semata desimal yang mudah dienumerate, tapi sebuah unique ID yang dipastikan berbeda untuk setiap barang yang saya jual. Dengan demikian, data delivery juga berfungsi sebagai data protection.
+
+#### 2. JSON vs. XML?
+Meskipun keduanya merupakan form of data delivery yang paling umum digunakan, saya bisa mengerti mengapa JSON lebih populer. Secara awam, JSON akan jauh lebih mudah dipahami karena hanya berupa key and value pair, juga lebih 'sedikit' untuk ditulis (less verbose). Dengan penulisan yang lebih sedikit (simple) tetapi merepresentasikan data delivery yang sama, tentu JSON akan lebih menjadi pilihan. Selain itu, JSON juga didukung oleh Javascript, yang merupakan 'most used web programming language` (Statista, 2024). Ketika pertama kali mempelajari web development, saya juga lebih dulu diperkenalkan dengan Javascript, sehingga jauh lebih familiar untuk menggunakan JSON. Ketika mempelajari RESTful APIs pun, JSOn akan digunakan untuk data interchange, ditambah JSON didukung oleh built-in method yang berguna seperti `JSON.parse()` dan `JSON.stringify()`. JSON juga mensupport penggunaan array, tidak dengan XML. Tetapi, semua kembali ke konteks penggunaan. Bagaimanapun, XML juga memberikan hierarki yang lebih jelas dan descriptive.
+
+### 3. `is_valid()` pada Form Django
+![image](https://github.com/user-attachments/assets/2effd8e3-4716-4abb-b32b-2b79dfe3cd2b)
+
+Ketika saya mencoba mengisi form bagian field `price` dan `volume` dengan alphabet, tulisannya tidak akan bisa muncul. Hal ini disebabkan saya telah mendefine field form tersebut dengan Integer. 
 
 
 
