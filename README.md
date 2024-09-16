@@ -284,7 +284,15 @@ Meskipun keduanya merupakan form of data delivery yang paling umum digunakan, sa
 ### 3. `is_valid()` pada Form Django
 ![image](https://github.com/user-attachments/assets/2effd8e3-4716-4abb-b32b-2b79dfe3cd2b)
 
-Ketika saya mencoba mengisi form bagian field `price` dan `volume` dengan alphabet, tulisannya tidak akan bisa muncul. Hal ini disebabkan saya telah mendefine field form tersebut dengan Integer.
+`is_valid()` merupakan built-in method dari Django. Ketika memanggil `is_valid()`, Django akan melakukan validasi untuk setiap field di form. Validasi berupa: apakah tipe dari field sesuai dengan yang didefinisikan di `models.py`, apakah semua field terisi, ataupun custom logic lainnya. 
+Mengapa membutuhkan method `is_valid()`? Jika validasi gagal, yang berarti data yang diinput user tidak seusai kriteria, field akan me-return `false` dan memunculkan pesan error, sehingga user dapat langsung menyadari kesalahan dari input dan segera membetulkan pengisian input fieldnya. Jika `is_valid()` me-return `true`, form akan emiliki `cleaned_data` yang dapat digunakan untuk logika selanjutnya dalam aplikasi Django. 
+Jika tidak melalui validasi, data yang masuk ke database dengan tipe `IntegerField` bisa saja berupa alphabet, sehingga database (umumnya SQL) akan segera mereturn error, yang berujung rumit jika harus membetulkannya manual dari sisi database. Sehingga, dengan method `is_valid()`, ketika saya mencoba mengisi  field `price` dan `volume` dengan alphabet, tulisannya tidak akan bisa muncul, akibat saya telah mendefine field form tersebut dengan Integer.
+
+### 4. CSRF (Cross-Site Request Forgery) `csrf_token` pada template Django
+CSRF merupakan jenis serangan di mana attacker melakukan tindakan yang tidak sah, atas nama pengguna yang sah, tanpa sepengetahuan mereka. Tindakan yang tidak sah dalam konteks aplikasi bisa berupa mengubah kata sandi, mengirim pesan atas nama pengguna yang sah, melakukan transaksi tidak sah, hingga mengubah data. Dalam konteks `glowify`, serangan bisa berupa penghapusan produk atau perubahan informasi mengenai produk yang dijual.
+Contoh mekanismenya, attacker dapat membuat form tersembunyi yang mengirimkan `POST` request ke aplikasi Django saya, `glowify`. Pengguna `glowify` yang mengira mereka sedang mengisi form di situs `glowify` asli, akan mengisi data penting mengenai pembelian mereka pada form palsu, lalu submit form tersebut. Submit request akan tampak sah bagi `glowify` dikarenakan berasal dari browser pengguna yang sah. 
+`csrf_token` membantu menghasilkan token unik yang disertakan dalam form. Token ini yang hanya akan lolos oleh verifikasi server saat form disubmit, jika token tersebut sesuai dengan yang dihasilkan server. Sehingga, hanya form sah `glowify` yang akan diterima oleh server.
+
 
 
 
