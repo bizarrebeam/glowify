@@ -5,7 +5,7 @@
 ### Proses Pembuatan Proyek Django
 1. Membuat sebuah repository lokal yang sudah terkoneksi dengan repository Github bernama `glowify`
 2. Di direktori `glowify`, membuat virtual environment Python baru dengan command:
-   ```bash
+   ```python
    python -m venv env
 3. Menyalakan virtual environment Python baru dengan command:
    ```bash
@@ -19,18 +19,18 @@
    requests
    urllib3
 5. Meng-install modul requirements dengan pip:
-   ```bash
+   ```python
    python -m pip install -r requirements.txt
 6. Membuat proyek Django baru dengan command:
    ```bash
    django-admin startproject glowify .
 7. Mengubah ALLOWED_HOSTS di file `settings.py ` agar dapat berjalan di localhost dengan menambahkan:
-   ```bash
+   ```python
    ...
    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
    ...
 8. Membuat aplikasi bernama main dengan command:
-   ```bash
+   ```python
    python manage.py startapp main
 9. Menambahkan nama aplikasi ke `INSTALLED_APPS` pada file `settings.py` di direktori `glowify`
     ```bash
@@ -44,7 +44,7 @@
     'main'
    ]
 10. Me-routing url pada file `urls.py` di direktori `glowify` sehingga isi file `urls.py` menjadi:
-    ```bash
+    ```python
     from django.contrib import admin
     from django.urls import path, include
 
@@ -53,7 +53,7 @@
         path('', include('main.urls')),
     ]
 11. Mengubah `models.py`dengan `class Product`, lalu isi dengan datatype sesuai kriteria:
-    ```bash
+    ```python
     from django.db import models
 
     class Product(models.Model):
@@ -66,11 +66,11 @@
        def price_per_ml(self):
            return self.price / self.volume if self.volume > 0 else 0
 12. Melakukan migrasi dengan command:
-    ```bash
+    ```python
     python manage.py makemigrations
     python manage.py migrate
 13. Membuat direktori template di aplikasi main, lalu isi dengan `index.html` untuk laman main:
-    ```bash
+    ```html
     <h1>Glowify your skin!</h1>
 
       <h5>Name: </h5>
@@ -80,7 +80,7 @@
       <h5>Class: </h5>
       <p>{{ class }}<p>
 14. Menambahkan fungsi untuk me-render laman main pada file `views.py`:
-    ```bash
+    ```python
     from django.shortcuts import render
 
     def show_main(request):
@@ -92,7 +92,7 @@
     
         return render(request, "main.html", context)
 15. Melakukan routing pada aplikasi `main` pada file `urls.py` di direktori main:
-    ```bash
+    ```python
     from django.urls import path
     from main.views import show_main
     
@@ -102,7 +102,7 @@
         path('', show_main, name='show_main'),
     ]
 16. Test aplikasi pada localhost dengan command:
-    ```bash
+    ```python
     python manage.py runserver
 17. Melakukan deploy app ke Pacil Web Server (PWS).
     Project telah dideploy di PWS melalui [ http://adelya-amanda-glowify.pbp.cs.ui.ac.id/ ]
@@ -132,7 +132,7 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
 ## Tugas 3
 ### Implementasi Form pada Django
 1. Membuat `forms.py` di direktori `main` dengan isi:
-   ```bash
+   ```python
    from django import forms
    from .models import Product
    
@@ -140,8 +140,10 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
        class Meta:
            model = Product
            fields = ['name', 'price', 'description', 'volume']
+   ```
+   
 3. Menambahkan fungsi `create_product` untuk menambha entri database di `views.py` di direktori main:
-   ```bash
+   ```python
    def create_product(request):
        form = ProductForm(request.POST or None)
    
@@ -151,8 +153,10 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
        
        context = {'form': form}    
        return render(request, "create_product.html", context)
+   ```
+   
 4. Mengimplementasikan form yang sudah dibuat ke dalam laman baru dengan template html yang baru `create_product.html`:
-   ```bash
+   ```python
    {% extends 'base.html' %} 
    {% block content %}
    
@@ -171,21 +175,28 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
    </form>
    
    {% endblock %}
+   ```
+   
 5. Routing URL ke page yang sesuai di `urls.py` pada adirektori `main`:
-   ```bash
+   ```python
    urlpatterns = [
        ...
        path('create-product', create_product, name='create_product'),
        ...
    ]
+   ```
+   
 6. Menambahkan folder `templates` di direktori utama dan `base.html` sebagai base dari halaman-halaman lainnya.
+   
 7. Menambahkan lokasi folder `templates` ke `settings.py` di direktori `glowify`:
-   ```bash
+   ```python
    ...
    'DIRS': [BASE_DIR / 'templates'],
    ...
+   ```
+   
 8. Mengimplementasikan database ke dalam halaman utama `main.html`, yang juga menjadi perpanjangan dari `base.html` di direktori utama:
-   ```bash
+   ```html
    {% if not products %}
    <p>Product not found T_T</p>
    {% else %}
@@ -206,15 +217,16 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
        </tr>
        {% endfor %}
    </table>
-   {% endif %}
-   
+   {% endif %}   
    <br />
    
    <a href="{% url 'main:create_product' %}">
        <button>Add new product!</button>
    </a>
-9. Menambahkan fungsi-fungsi yang diperlukan untuk menampilkan JSON dan XML, baik secara keseluruhan ataupun berdasarkan PK entri database yang sesuai di `views.py`
-   ```bash
+   ```
+
+9. Menambahkan fungsi-fungsi yang diperlukan untuk menampilkan JSON dan XML, baik secara keseluruhan ataupun berdasarkan PK entri database yang sesuai di `views.py`:
+   ```python
    def show_xml(request):
        data = Product.objects.all()
        return HttpResponse(serializers.serialize('xml', data), content_type='application/xml')
@@ -229,9 +241,11 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
    
    def show_json_by_id(request, id):
        data = Product.objects.filter(pk=id)
-       return HttpResponse(serializers.serialize('json', data), content_type='application/json')    
-10. Melakukan routing kembali URL yang sesuai i file `urls.py`:
-   ```bash
+       return HttpResponse(serializers.serialize('json', data), content_type='application/json')
+   ```
+
+10. Melakukan routing kembali URL yang sesuai di file `urls.py`:
+   ```python
    urlpatterns = [
        ...
        path('xml/', show_xml, name='show_xml'),
@@ -239,9 +253,12 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
        path('xml/<str:id>', show_xml_by_id, name='show_xml_by_id'),
        path('json/<str:id>', show_json_by_id, name='show_json_by_id')
    ]
+   ```
+
 11. Melakukan test aplikasi pada localhost, cek apakah ada error. Cek juga endpoint yang sesuai, baik tidak ataupun menggunakan PK:
    ```bash
    python manage.py runserver
+   ```
 
 ### Test di Postman
 1. JSON
@@ -258,16 +275,16 @@ Django menggunakan ORM (Object Relational Mapping) karena model memetakan objek 
 
 ### Jawaban dari Pertanyaan Tugas 3
 #### 1. Mengapa memerlukan data delivery dalam mengimplementasikan platform
-Misalkan untuk user e-commerce `glowify`, user akan expect untuk mendapatkan lists dari produk terbaru dan melihat  stok barang yang tersedia. Misalkan saya, sebagai salah satu seller dari `glowify`, tentu saya ingin menuliskan deskripsi produk up-to-date agar pembeli saya mendapatkan review produk yang paling relevan, atau terus mengupdate harga dari produk yang saya jual seiring waktu. Saya juga perlu mengupdate stok yang tersedia di inventori saya. Dengan demikian, data delivery berguna untuk user experience. User memerlukan update data yang dinamis, jadi data perlu diperbaharui secara terus menerus, menyanggupi request yang masuk.
+Misalkan untuk user e-commerce `glowify`, user akan expect untuk mendapatkan lists dari produk terbaru dan melihat stok barang yang tersedia. Misalkan saya, sebagai salah satu seller dari `glowify`, tentu saya ingin menuliskan deskripsi produk up-to-date agar pembeli saya mendapatkan review produk yang paling relevan, atau terus mengupdate harga dari produk yang saya jual seiring waktu. Saya juga perlu mengupdate stok yang tersedia di inventori saya. Dengan demikian, data delivery berguna untuk user experience. User memerlukan update data yang dinamis, jadi data perlu diperbaharui secara terus menerus, menyanggupi request yang masuk.
 Melalui data delivery, setiap produk yang saya update di `glowify` telah memiliki identitas (ID) nya sendiri. Namun saya dapat merasa nyaman sebagai penjual, karena tahu ID nya bukanlah semata desimal yang mudah dienumerate, tapi sebuah unique ID yang dipastikan berbeda untuk setiap barang yang saya jual. Dengan demikian, data delivery juga berfungsi sebagai data protection.
 
 #### 2. JSON vs. XML?
-Meskipun keduanya merupakan form of data delivery yang paling umum digunakan, saya bisa mengerti mengapa JSON lebih populer. Secara awam, JSON akan jauh lebih mudah dipahami karena hanya berupa key and value pair, juga lebih 'sedikit' untuk ditulis (less verbose). Dengan penulisan yang lebih sedikit (simple) tetapi merepresentasikan data delivery yang sama, tentu JSON akan lebih menjadi pilihan. Selain itu, JSON juga didukung oleh Javascript, yang merupakan 'most used web programming language` (Statista, 2024). Ketika pertama kali mempelajari web development, saya juga lebih dulu diperkenalkan dengan Javascript, sehingga jauh lebih familiar untuk menggunakan JSON. Ketika mempelajari RESTful APIs pun, JSOn akan digunakan untuk data interchange, ditambah JSON didukung oleh built-in method yang berguna seperti `JSON.parse()` dan `JSON.stringify()`. JSON juga mensupport penggunaan array, tidak dengan XML. Tetapi, semua kembali ke konteks penggunaan. Bagaimanapun, XML juga memberikan hierarki yang lebih jelas dan descriptive.
+Meskipun keduanya merupakan form of data delivery yang paling umum digunakan, saya bisa mengerti mengapa JSON lebih populer. Secara awam, JSON akan jauh lebih mudah dipahami karena hanya berupa key and value pair, juga lebih 'sedikit' untuk ditulis (less verbose). Dengan penulisan yang lebih sedikit (simple) tetapi merepresentasikan data delivery yang sama, tentu JSON akan lebih menjadi pilihan. Selain itu, JSON juga didukung oleh Javascript, yang merupakan 'most used web programming language' (Statista, 2024). Ketika pertama kali mempelajari web development, saya juga lebih dulu diperkenalkan dengan Javascript, sehingga jauh lebih familiar untuk menggunakan JSON. Ketika mempelajari RESTful APIs pun, JSON akan digunakan untuk data interchange, ditambah JSON didukung oleh built-in method yang berguna seperti `JSON.parse()` dan `JSON.stringify()` yang dapat langsung mentranslasi data dalam bentuk objek. Bandingkan dengan XML yang perlu berhadapan dengan parsing text secara manual. JSON juga mensupport penggunaan array, tidak dengan XML. Tetapi, semua kembali ke konteks penggunaan. Bagaimanapun, XML juga memberikan hierarki yang lebih jelas dan descriptive.
 
 ### 3. `is_valid()` pada Form Django
 ![image](https://github.com/user-attachments/assets/2effd8e3-4716-4abb-b32b-2b79dfe3cd2b)
 
-Ketika saya mencoba mengisi form bagian field `price` dan `volume` dengan alphabet, tulisannya tidak akan bisa muncul. Hal ini disebabkan saya telah mendefine field form tersebut dengan Integer. 
+Ketika saya mencoba mengisi form bagian field `price` dan `volume` dengan alphabet, tulisannya tidak akan bisa muncul. Hal ini disebabkan saya telah mendefine field form tersebut dengan Integer.
 
 
 
