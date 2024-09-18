@@ -82,6 +82,7 @@ def login_user(request):
    context = {'form': form}
    return render(request, 'login.html', context)
 
+# testes
 def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('main:login'))
