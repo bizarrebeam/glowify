@@ -295,10 +295,9 @@ Contoh mekanismenya, attacker dapat membuat form tersembunyi yang mengirimkan `P
 
 ## Tugas 4
 
+### Implementasi Autentikasi, Cookie & Session, dan Menghubungkan Model `Product` dengan `User`
 
-## Implementasi Autentikasi, Cookie & Session, dan Menghubungkan Model `Product` dengan `User`
-
-### 1. Membuat Fungsionalitas Registrasi
+#### 1. Membuat Fungsionalitas Registrasi
 
 - Buat fungsi `register` di `views.py` untuk menangani registrasi pengguna baru menggunakan `UserCreationForm`.
 - Tambahkan halaman `register.html` di dalam `main/templates` untuk form pendaftaran.
@@ -344,7 +343,7 @@ urlpatterns = [
 ]
 ```
 
-### 2. Membuat Fungsionalitas Login
+#### 2. Membuat Fungsionalitas Login
 
 - Buat fungsi `login_user` untuk menangani autentikasi pengguna. Setelah berhasil login, set cookie `last_login`.
 - Buat halaman `login.html`.
@@ -393,7 +392,7 @@ urlpatterns = [
 ]
 ```
 
-### 3. Membuat Fungsionalitas Logout
+#### 3. Membuat Fungsionalitas Logout
 
 - Buat fungsi `logout_user` untuk logout dan menghapus cookie `last_login`.
 - Tambahkan routing untuk logout di `urls.py`.
@@ -426,7 +425,7 @@ urlpatterns = [
 ]
 ```
 
-### 4. Membatasi Akses ke Halaman `main`
+#### 4. Membatasi Akses ke Halaman `main`
 
 Tambahkan decorator `login_required` untuk membatasi akses ke halaman `main` hanya untuk pengguna yang sudah login.
 
@@ -447,7 +446,7 @@ def show_main(request):
     return render(request, 'main.html', context)
 ```
 
-### 5. Menghubungkan Model `Product` dengan `User`
+#### 5. Menghubungkan Model `Product` dengan `User`
 
 Sesuaikan model `Product` untuk terhubung dengan `User` melalui `ForeignKey`, dan pastikan setiap produk terhubung ke pengguna yang membuatnya.
 
@@ -485,7 +484,7 @@ def create_product(request):
     return render(request, 'create_product.html', {'form': form})
 ```
 
-### 6. Melakukan Migrasi
+#### 6. Melakukan Migrasi
 
 Membuat dan menerapkan migrasi:
 
@@ -494,7 +493,7 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 7. Mengedit `settings.py` untuk Produksi
+#### 7. Mengedit `settings.py` untuk Produksi
 
 Tambahkan pengecekan environment production dengan menggunakan variabel `os`.
 
@@ -506,7 +505,7 @@ PRODUCTION = os.getenv("PRODUCTION", False)
 DEBUG = not PRODUCTION
 ```
 
-### 8. Menjalankan Server
+#### 8. Menjalankan Server
 
 Cek apakah semuanya aman dengan menjalankan perintah:
 
@@ -516,8 +515,103 @@ python manage.py runserver
 aman:D
 
 ### Jawaban dari Pertanyaan Tugas 4
-###
+#### 1. Perbedaan antara `HttpResponseRedirect()` dengan `redirect()`
+Dalam `views.py` di direktori `main`, terdapat penggunaan dari kedua fungsi tersebut.
+##### Penggunaan `redirect`:
+- Merupakan `function` di Django yang membantu routing menjadi lebih sederhana, dikarenakan fungsi ini langsung menerima berbagai jenis argumen seperti nama view hingga objek model. Detail URL akan diurus oleh Django.
+   ```python
+   def register(request):
+       form = UserCreationForm()
+   
+       if request.method == "POST":
+           form = UserCreationForm(request.POST)
+           if form.is_valid():
+               form.save()
+               messages.success(request, 'Your account has been successfully created!')
+               return redirect('main:login')
+      ...
+   ```
+- Pada function `register`, digunakan `redirect()` dikarenakan saya hanya ingin langsung mengarahkan user untuk ke halaman login setelah selesai mendaftarkan akunnya. Saya tidak perlu memberikan detail URL tertentu yang tepat atau mekanisme tambahan. Kode akan jadi lebih mudah dibaca, karena fungsionalitas yang saya butuhkan hanya switch laman saja.
+##### Penggunaan `HttpResponseRedirect()`
+- Merupakan `kelas` di Django untuk mengembalikan respons HTTP yang juga mengarahkan pengguna ke URL tertentu secara manual. Diperlukan pemberian URL tujuan sebagai argumen. Penggunaan kelas ini membantu kontrol lebih terhadap respons HTTP, terutama jika perlu melakukan mekanisme tambahan sebelum mengirimkan respons. Jadi, yang dilakukan tidak hanya sekedar switch laman.
+```python
+def login_user(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
 
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            response = HttpResponseRedirect(reverse("main:show_main"))
+            response.set_cookie('last_login', str(datetime.datetime.now()))
+            return response
+      ...
+```
+- Pada function `login_user`, digunakan `HttpResponseRedirect()` dikarenakan saya ingin menambahkan cookie ke dalam respons sebelum mengembalikannya. Dengan demikian, terjadi modifikasi response sebelum dikirim balik ke pengguna (dikembalikan ke laman `show_main`), dilihat dari bagaimana kelas dipanggil dengan cara disimpan ke variabel `response` terlebih dahulu.
+
+#### 2. Cara kerja menghubungkan model `Product` dengan `User`
+- Menambahkan ForeignKey ke dalam model `Product` agar setiap produk akan terkait dengan satu pengguna dari model `User` bawaan Django. Setiap entri produk yang dibuat pengguna akan disimpan dengan informasi siapa yang membuatnya. Jika pengguna dihapus, produk yang terkait juga akan dihapus secara otomatis melalui `on_delete=models.CASCADE`
+```python
+from django.contrib.auth.models import User
+
+class Product(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ...
+```
+- Tentu best practice e-commerce adalah menampilkan produk sesuai dengan pengguna yang sedang login. Sehingga di bagian `view`, gunakan filter untuk menampilkan produk yang hanya dimiliki oleh pengguna yang terautentikasi. Pada `show_main`, filter produk dengan `request.user`.
+```python
+@login_required(login_url='/login')
+def show_main(request):
+    products = Product.objects.filter(user=request.user)
+    ...
+```
+- Saat pengguna membuat produk baru, produk akan otomatis terkait dengan pengguna yang sedang login dikarenakan telah ditambahkan properti `user` pada instance produk sebelum disimpan.
+```python
+def create_product(request):
+    form = ProductForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        product = form.save(commit=False)
+        product.user = request.user  # Menghubungkan produk dengan user
+        product.save() # Baru simpan
+        return redirect('main:show_main')
+
+    context = {'form': form}
+    return render(request, "create_product.html", context)
+```
+#### 3. Implementasi authentication dan authorization oleh Django
+- Autentikasi adalah proses memverifikasi identitas user. Proses ini memastikan bahwa pengguna yang mencoba mengakses aplikasi sesuai dengan 'field pengguna' yang diklaim. Proses ini biasanya meminta username dan password. Saat pengguna berhasil login, berarti proses autentikasi berhasil. 
+Otorisasi adalah proses memberi izin, 'apa saja yang boleh dilakukan oleh pengguna yang sudah terautentikasi'? Otorisasi menentukan halaman atau data apa saja yang bisa diakses oleh pengguna tersebut.
+- Misal, saya pernah mendaftar ke `glowify` dengan username bizarrebeam. Autentikasi akan menanyakan, 'apakah ini benar-benar bizarrebeam?'. Otorisasi, di lain sisi, akan menanyakan, 'apakah bizarrebeam berhak untuk mengakses halaman admin ecommerce, atau mengedit data produk?'
+- Django menangani autentikasi dengan modul `django.contrib.auth`. Django telah menyediakan form login bawaan yang menangani pengecekan kredensial pengguna. Pada `views.py` saya:
+```python
+form = AuthenticationForm(data=request.POST)
+if form.is_valid():
+    user = form.get_user()
+    login(request, user)
+```
+- Django menangani otorisasi dengan decorator seperti `@login_required`, sehingga hanya pengguna yang telah login yang bisa mengakses halaman tertentu. Pada `views.py` saya:
+```python
+@login_required(login_url='/login')
+def show_main(request):
+```
+
+#### 4. Bagaimana Django mengingat pengguna yang telah login, kegunaan lain dari cookies, apakah semua cookies aman digunakan
+##### Bagaimana Django mengingat pengguna yang telah login
+- Setelah pengguna login, Django menggunakan sesi untuk mengingat pengguna tersebut. Informasi sesi disimpan di server. Browser pengguna hanya menyimpan session ID dalam bentuk cookie. Saat pengguna melakukan permintaan (request) ke server, browser mengirimkan session ID ini, dan Django akan mencocokkannya dengan informasi yang ada di server untuk mengidentifikasi pengguna. Proses ini terjadi setiap kali pengguna membuka halaman baru tanpa perlu login ulang.
+- Setelah login, Django mengirim cookie dengan session ID ke browser. Django mengakses informasi sesi menggunakan cookie ini. Jika pengguna membuka halaman lain di situs, browser akan mengirim cookie ini dalam setiap permintaan, sehingga Django bisa mengenali pengguna yang telah login. 
+- Django secara default akan mengingat pengguna selama sesi berlangsung. Jika pengguna menutup browser atau jika durasi sesi habis, pengguna harus login kembali. Namun, Django juga bisa dikonfigurasi untuk mengingat pengguna lebih lama, misalnya dengan fitur "remember me" yang membuat sesi bertahan lebih lama.
+##### Kegunaan lain dari cookies
+- Cookie umum diminta untuk menyimpan preferensi pengguna, seperti bahasa yang dipilih, light/dark mode.
+- Cooies dapat digunakan untuk melacak aktivitas pengguna di situs web, misal mengingat halaman yang dikunjungi, atau produk yang ditambahkan ke keranjang belanja (dalam konteks ecommerce).
+- Third-party cookies dapat digunakan layanan iklan untuk menampilkan iklan yang lebih personalize. Cookies ini digunakan untuk menargetkan iklan berdasarkan perilaku pengguna di internet.
+- Cookies juga dapat digunakan untuk mengumpulkan data statistik tentang kunjungan pengguna, lalu digunakan untuk menganalisis performa situs web.
+##### Apakah semua cookies aman digunakan
+Ada beberapa hal yang harus diperhatikan, sebab belum tentu semua cookies aman jika tidak dikonfigurasi dengan baik.
+- Cookies yang mengandung informasi penting, seperti session ID, harus memiliki atribut HttpOnly. Atribut ini mencegah cookies tersebut diakses oleh JavaScript, sehingga mengurangi risiko serangan cross-site scripting (XSS).
+- Cookies yang dikirim melalui koneksi yang aman (HTTPS) harus diberi atribut `Secure` yang memastikan cookies hanya dikirim melalui koneksi yang terenkripsi. Tanpa atribut ini, cookies bisa dicuri jika pengguna mengakses situs melalui koneksi yang tidak aman.
+- Atribut `SameSite` mencegah cookies dikirimkan dalam permintaan lintas situs, yang melindungi dari serangan cross-site request forgery (CSRF), seperti yang telah dijelaskan pada README Tugas 3.
+- Cookies pihak ketiga yang digunakan untuk iklan atau pelacakan sering kali dianggap 'invasif' karena melacak aktivitas pengguna di berbagai situs, sehingga menjadi concern privasi. Beberapa browser telah mulai memblokir third-party cookies secara default.
 
 
 
