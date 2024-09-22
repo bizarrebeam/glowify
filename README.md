@@ -294,139 +294,112 @@ Contoh mekanismenya, attacker dapat membuat form tersembunyi yang mengirimkan `P
 `csrf_token` membantu menghasilkan token unik yang disertakan dalam form. Token ini yang hanya akan lolos oleh verifikasi server saat form disubmit, jika token tersebut sesuai dengan yang dihasilkan server. Sehingga, hanya form sah `glowify` yang akan diterima oleh server.
 
 ## Tugas 4
-### Proses Implementasi Autentikasi, Cookie & Session, dan Connect Model Product dengan User
-1. Membuat fungsionalitas registrasi.
-Pada `views.py`:
+
+
+## Implementasi Autentikasi, Cookie & Session, dan Menghubungkan Model `Product` dengan `User`
+
+### 1. Membuat Fungsionalitas Registrasi
+
+- Buat fungsi `register` di `views.py` untuk menangani registrasi pengguna baru menggunakan `UserCreationForm`.
+- Tambahkan halaman `register.html` di dalam `main/templates` untuk form pendaftaran.
+- Tambahkan routing untuk `register` di `urls.py`.
+
 ```python
+# views.py
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 
 def register(request):
     form = UserCreationForm()
-
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your account has been successfully created!')
             return redirect('main:login')
-        
-    context = {'form':form}
-    return render(request, 'register.html', context)
-
+    return render(request, 'register.html', {'form': form})
 ```
-Membuat `register.html` pada `main/templates`:
+
 ```html
+<!-- register.html -->
 {% extends 'base.html' %}
-
-{% block meta %}
-<title>Start your Glowify journey!</title>
-{% endblock meta %}
-
 {% block content %}
-
 <div class="login">
   <h1>Register</h1>
-
-  <form method="POST">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-      <tr>
-        <td></td>
-        <td><input type="submit" name="submit" value="Daftar" /></td>
-      </tr>
-    </table>
+  <form method="POST">{% csrf_token %}
+    <table>{{ form.as_table }}</table>
+    <input type="submit" name="submit" value="Daftar" />
   </form>
-
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
 </div>
-
-{% endblock content %}
+{% endblock %}
 ```
-Routing ke `urls.py`:
+
 ```python
+# urls.py
 from main.views import register
 
- urlpatterns = [
-     ...
-     path('register/', register, name='register'),
- ]
+urlpatterns = [
+    ...
+    path('register/', register, name='register'),
+]
 ```
-3. Membuat fungsionalitas login.
-Pada `views.py`:
+
+### 2. Membuat Fungsionalitas Login
+
+- Buat fungsi `login_user` untuk menangani autentikasi pengguna. Setelah berhasil login, set cookie `last_login`.
+- Buat halaman `login.html`.
+- Tambahkan routing untuk login di `urls.py`.
+
 ```python
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+# views.py
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login
+import datetime
 
 def login_user(request):
-   if request.method == 'POST':
-      form = AuthenticationForm(data=request.POST)
-
-      if form.is_valid():
-        user = form.get_user()
-        login(request, user)
-        response = HttpResponseRedirect(reverse("main:show_main"))
-        response.set_cookie('last_login', str(datetime.datetime.now()))
-        return response
-
-   else:
-      form = AuthenticationForm(request)
-
-   context = {'form': form}
-   return render(request, 'login.html', context)
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            response = HttpResponseRedirect(reverse("main:show_main"))
+            response.set_cookie('last_login', str(datetime.datetime.now()))
+            return response
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
 ```
-Membuat `login.html` pada `main/templates`:
+
 ```html
+<!-- login.html -->
 {% extends 'base.html' %}
-
-{% block meta %}
-<title>Login</title>
-{% endblock meta %}
-
 {% block content %}
 <div class="login">
   <h1>Back to Glowify!</h1>
-
-  <form method="POST" action="">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-      <tr>
-        <td></td>
-        <td><input class="btn login_btn" type="submit" value="Login" /></td>
-      </tr>
-    </table>
+  <form method="POST">{% csrf_token %}
+    <table>{{ form.as_table }}</table>
+    <input type="submit" value="Login" />
   </form>
-
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} Don't have an account yet?
   <a href="{% url 'main:register' %}">Register Now</a>
 </div>
-
-{% endblock content %}
+{% endblock %}
 ```
-Routing ke `urls.py`:
+
 ```python
+# urls.py
 urlpatterns = [
-   ...
-   path('login/', login_user, name='login'),
+    ...
+    path('login/', login_user, name='login'),
 ]
 ```
-4. Membuat fungsionalitas logout.
-Pada `views.py`:
+
+### 3. Membuat Fungsionalitas Logout
+
+- Buat fungsi `logout_user` untuk logout dan menghapus cookie `last_login`.
+- Tambahkan routing untuk logout di `urls.py`.
+
 ```python
+# views.py
 from django.contrib.auth import logout
 
 def logout_user(request):
@@ -435,125 +408,115 @@ def logout_user(request):
     response.delete_cookie('last_login')
     return response
 ```
-Mengedit `main.html` pada `main/templates`:
-```python
-...
+
+```html
+<!-- main.html -->
 <a href="{% url 'main:logout' %}">
   <button>Logout</button>
 </a>
-...
 ```
-Routing ke `urls.py`:
+
 ```python
+# urls.py
 from main.views import logout_user
 
 urlpatterns = [
-   ...
-   path('logout/', logout_user, name='logout'),
+    ...
+    path('logout/', logout_user, name='logout'),
 ]
 ```
-5. Membuat akses halaman main menjadi terestriksi, dengan mengimpor decorator `login_required` di `views.py`. Fungsinya agar hanya pengguna terautentikasi yang dapat mengakses laman main.
+
+### 4. Membatasi Akses ke Halaman `main`
+
+Tambahkan decorator `login_required` untuk membatasi akses ke halaman `main` hanya untuk pengguna yang sudah login.
+
 ```python
+# views.py
 from django.contrib.auth.decorators import login_required
-...
+
 @login_required(login_url='/login')
 def show_main(request):
-...
-```
-6. Mengimplementasikan fungsionalitas cookies mengedit `views.py`:
-```python
-import datetime
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-...
- # Edit variabel `context` pada fungsi `show_main`
-   ...
-   context = {
-        'name' : request.user.username,
+    products = Product.objects.filter(user=request.user)
+    context = {
+        'name': request.user.username,
         'npm': '2306165616',
         'class': 'PBP-A',
         'products': products,
-        'last_login': request.COOKIES['last_login'],
+        'last_login': request.COOKIES.get('last_login'),
     }
-   ...
-
-# Ganti kode pada blok `if form.is_valid()` pada function `last_login`
-   if form.is_valid():
-           user = form.get_user()
-           login(request, user)
-           response = HttpResponseRedirect(reverse("main:show_main"))
-           response.set_cookie('last_login', str(datetime.datetime.now()))
-           return response
-...
+    return render(request, 'main.html', context)
 ```
-7. Menghubungkan model `Product` dengan `User` dengan cara mengedit `models.py` menjadi:
+
+### 5. Menghubungkan Model `Product` dengan `User`
+
+Sesuaikan model `Product` untuk terhubung dengan `User` melalui `ForeignKey`, dan pastikan setiap produk terhubung ke pengguna yang membuatnya.
+
 ```python
-import uuid
+# models.py
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 
 class Product(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255) 
-    price = models.IntegerField()  
-    description = models.TextField()  
+    name = models.CharField(max_length=255)
+    price = models.IntegerField()
+    description = models.TextField()
     volume = models.IntegerField()
 
     @property
     def price_per_ml(self):
         return self.price / self.volume if self.volume > 0 else 0
-   
 ```
-Juga mengedit `views.py` pada subdirektori `main` dan mengedit `show_main` dan `create_product` menjadi:
+
+Tambahkan logika untuk menyimpan produk baru yang terkait dengan pengguna yang sedang login.
+
 ```python
+# views.py
 @login_required(login_url='/login')
-def show_main(request):
-    products = Product.objects.filter(user=request.user)
-
-    context = {
-        'name' : request.user.username,
-        'npm': '2306165616',
-        'class': 'PBP-A',
-        'products': products,
-        'last_login': request.COOKIES['last_login'],
-    }
-
-    return render(request, "main.html", context)
-
 def create_product(request):
     form = ProductForm(request.POST or None)
-
     if form.is_valid() and request.method == "POST":
         product = form.save(commit=False)
         product.user = request.user
         product.save()
         return redirect('main:show_main')
-
-    context = {'form': form}
-    return render(request, "create_product.html", context)
+    return render(request, 'create_product.html', {'form': form})
 ```
 
-9. Melakukan migrasi dengan:
-```python
+### 6. Melakukan Migrasi
+
+Membuat dan menerapkan migrasi:
+
+```bash
 python manage.py makemigrations
-```
-Tidak lupa menetapkan default value 1, lalu melanjutkan migrasi dengan:
-```python
 python manage.py migrate
 ```
-9. Menyiapkan web app untuk environment production dengan mengimpor `os ` dan mengedit `settings.py` pada subdirektori `glowify`:
+
+### 7. Mengedit `settings.py` untuk Produksi
+
+Tambahkan pengecekan environment production dengan menggunakan variabel `os`.
+
 ```python
+# settings.py
 import os
 
-...
 PRODUCTION = os.getenv("PRODUCTION", False)
 DEBUG = not PRODUCTION
-...
 ```
-10. Cek dulu melalui `python manage.py runserver` dan bisa terbuka:D Selanjutnya tinggal push perubahan ke github (auto push ke PWS juga).
 
+### 8. Menjalankan Server
 
+Cek apakah semuanya aman dengan menjalankan perintah:
+
+```bash
+python manage.py runserver
+```
+aman:D
+
+### Jawaban dari Pertanyaan Tugas 4
+###
 
 
 
