@@ -514,6 +514,11 @@ python manage.py runserver
 ```
 aman:D
 
+### Bukti Pembuatan 2 Akun & Masing-Masing 3 Data Dummy
+![image](https://github.com/user-attachments/assets/adf928b2-dd0c-42e5-948f-61e39d9208d4)
+![image](https://github.com/user-attachments/assets/4bf76d3f-6d51-479e-b0ce-092d1e44431a)
+
+
 ### Jawaban dari Pertanyaan Tugas 4
 #### 1. Perbedaan antara `HttpResponseRedirect()` dengan `redirect()`
 Dalam `views.py` di direktori `main`, terdapat penggunaan dari kedua fungsi tersebut.
