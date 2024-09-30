@@ -1143,6 +1143,41 @@ btn.addEventListener("click", () => {
      ```
 
 #### 2. Responsive design
+Mengapa penting? Misalkan saya tidak menerapkan responsive design pada `glowify` saya:
+- Design `glowify` pada website
+	![image](https://github.com/user-attachments/assets/051d4f19-ae0d-4156-af5a-b1135a8289c5)
+	(oke :D)
+- Design `glowify` pada tab
+ 	 ![image](https://github.com/user-attachments/assets/fc1729bc-f098-4e0c-b552-5785e192b9e6)
+	(masih boleh lah ya.... sesek dikit)
+- Design `glowify` pada mobile:
+ 	 ![image](https://github.com/user-attachments/assets/81e18c9c-6b85-4b32-9bf4-d9e49ed9cc8a)
+	(sesek bgt..... apa yang mau diliat)
+
+##### Mengapa responsive design penting?
+- Memberi pengalaman pengguna yang lebih baik
+- Website dapat diakses dari berbagai jenis perangkat, mau layarnya 'besar' ataupun lebih kecil
+- Hanya membuat satu website, tetapi sudah diset agar mampu menghandle display design untuk berbagai perangkat (dibandingkan membuat website untuk tipe desktop, tab, dan hp....). Pengelolaan website akan lebih mudah.
+
+##### Contoh aplikasi yang sudah menerapkan responsive design
+1. `glowify` tentunya:D
+   ![image](https://github.com/user-attachments/assets/5fbfee55-2e17-4d18-9d4a-16971b52ee1b)
+   ![image](https://github.com/user-attachments/assets/694cda18-ea99-4337-be96-fa9cae37a187)
+   ![image](https://github.com/user-attachments/assets/82b2e829-477a-492d-a47a-516d9178748a)
+2. Github
+   ![image](https://github.com/user-attachments/assets/8694a345-eecb-4eda-ab73-cdef60c254ba)
+   ![image](https://github.com/user-attachments/assets/7f5b9e77-6e05-4327-a07b-4abcd518f720)
+   ![image](https://github.com/user-attachments/assets/873795e8-deac-4da0-81a7-198e39902b99)
+
+##### Contoh aplikasi yang belum menerapkan responsive design 
+1. SIAKNG :D
+   Baru tampilan website saja, login formnya menyediakan banyak empty space yang tidak terisi. Empty space umum di login form, namun akan lebih baik jika main utility webistenya (form) diletakkan di tengah sebagai center of attention.
+   ![image](https://github.com/user-attachments/assets/8fca083c-28b6-4a5a-b23e-457386efea0b)
+   Untuk mobile screen size, pengguna harus zoom page secara manual dikarenakan teks sangat kecil.
+   ![image](https://github.com/user-attachments/assets/66144559-ba55-4aab-90e7-b421afb6b7e1)
+   Banyak space kosong tersedia di bawah, padahal design bisa dibuat agar layoutnya menyesuaikan mobile screen size
+   ![image](https://github.com/user-attachments/assets/35c2272d-b269-41d6-91b9-2f24a00c6ff5)
+
 
 #### 3. Perbedaan dan Implementasi dari Margin, Border, dan Padding
 1. Margin
