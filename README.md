@@ -620,7 +620,7 @@ Ada beberapa hal yang harus diperhatikan, sebab belum tentu semua cookies aman j
 
 
 
-## Tugas 4
+## Tugas 5
 ### Implementasi Styling dan Fitur CRUD Produk
 
 #### 1. Menambahkan Tailwind ke Aplikasi
@@ -1083,7 +1083,110 @@ btn.addEventListener("click", () => {
 {% endblock content %}
 ```
 
+### Jawaban dari Tugas 5
 
+#### 1. Urutan prioritas CSS selector
+1. Inline Styles
+   - CSS yang ditulis langsung pada atribut `style` di elemen HTML memiliki prioritas tertinggi.
+     ```html
+     <p style="color: red;">This is a paragraph.</p>
+     ```
+
+2. ID Selectors
+   - Selector yang menggunakan ID memiliki prioritas lebih tinggi dibandingkan class, attribute, dan type selectors.
+     ```css
+     #myId {
+       color: blue;
+     }
+     ```
+
+3. Class, Attribute, dan Pseudo-class Selectors
+   - Selector yang menggunakan class, attribute, atau pseudo-class memiliki prioritas lebih tinggi dibandingkan type selectors.
+     ```css
+     .myClass {
+       color: green;
+     }
+     [type="text"] {
+       color: yellow;
+     }
+     :hover {
+       color: orange;
+     }
+     ```
+
+4. Type Selectors dan Pseudo-element Selectors
+   - Selector yang menggunakan type (tag) atau pseudo-element memiliki prioritas lebih rendah dibandingkan ID, class, dan attribute selectors.
+     ```css
+     p {
+       color: purple;
+     }
+     ::before {
+       content: "Prefix";
+     }
+     ```
+
+5. Universal Selector
+   - Selector yang menggunakan `*` memiliki prioritas paling rendah.
+     ```css
+     * {
+       color: black;
+     }
+     ```
+
+6. Important Rule
+   - Deklarasi yang menggunakan `!important` akan mengesampingkan semua aturan lainnya, kecuali aturan lain yang juga menggunakan `!important`.
+   - Contoh:
+     ```css
+     p {
+       color: blue !important;
+     }
+     ```
+
+#### 2. Responsive design
+
+#### 3. Perbedaan dan Implementasi dari Margin, Border, dan Padding
+1. Margin
+   - Ruang di luar elemen yang memisahkan elemen tersebut dari elemen lain di sekitarnya. Margin tidak memiliki warna atau gaya, hanya ruang kosong.
+   - Digunakan untuk mengatur jarak antara elemen-elemen di halaman web.
+     ```css
+     .example {
+       margin: 20px; /* Memberikan jarak 20px di semua sisi elemen */
+     }
+     ```
+
+2. Border
+   - Garis yang mengelilingi elemen. Border dapat memiliki warna, ketebalan, dan gaya (seperti solid, dashed, atau dotted).
+   - Digunakan untuk memberikan batas visual pada elemen, sehingga elemen tersebut lebih menonjol atau terpisah dari elemen lain.
+     ```css
+     .example {
+       border: 2px solid black; /* Memberikan border hitam solid dengan ketebalan 2px */
+     }
+     ```
+
+3. Padding
+   - Ruang di dalam elemen yang memisahkan konten elemen dari border elemen tersebut. Padding tidak memiliki warna atau gaya, hanya ruang kosong.
+   - Digunakan untuk memberikan ruang di dalam elemen, sehingga konten tidak terlalu dekat dengan border.
+     ```css
+     .example {
+       padding: 10px; /* Memberikan ruang 10px di dalam elemen di semua sisi */
+     }
+     ```
+
+
+#### 4. Flexbox dan Grid Layout
+##### Flexbox
+Adalah model layout **satu dimensi** yang digunakan untuk mengatur tata letak elemen dalam satu baris atau satu kolom. Flexbox umum digunakan untuk membua layout yang responsif (mampu adjust di beda breakpoint ukuran screen) dikarenakan konsepnya berupa 'flexible box'.
+
+Flexbox berguna untuk:
+- Mengatur elemen dalam satu baris (horizontal) atau adlam satu kolom (vertikal)
+- Membantu pengaturan spasi antara elemen dan perataan elemen di dalam container
+- Membantu elemen untuk menyesuaikan ukuran dan posisi berdasarkan ukuran container
+##### Grid Layout
+Adalah model layout **dua dimensi** yang digunakan untuk mengatur tata letak elemen dalam baris dan kolom. Grid Layout sangat berguna untuk membuat tata letak yang lebih terstruktur.
+
+Grid berguna untuk:
+- Mengatur elemen dalam baris dan kolom dengan design yang lebih 'terstruktur' dikarenakan memiliki grid lines
+- Mengatur ukuran dan posisi elemen dengan lebih presisi.
 
 
    
