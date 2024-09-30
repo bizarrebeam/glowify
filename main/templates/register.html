@@ -1,32 +1,57 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block meta %}
-<title>Start your Glowify journey!</title>
+<title>Register</title>
 {% endblock meta %}
 
 {% block content %}
+<div class="flex h-screen">
+  <!-- Left side with image and text -->
+  <div class="w-1/2 relative hidden sm:block">
+    <img src="{% static 'image/login-photo.png' %}" alt="Register Photo" class="object-cover w-full h-full">
+    <div class="absolute inset-0 flex justify-center items-end pb-4 sm:pb-8 md:pb-16 lg:pb-24">
+      <p class="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl text-center drop-shadow-md">
+        Discover your radiant glow.<br>One product at a time.
+      </p>
+    </div>
+  </div>
 
-<div class="login">
-  <h1>Register</h1>
+  <!-- Right side with register form -->
+  <div class="w-full sm:w-1/2 flex flex-col justify-center items-center bg-[#F5F3EE] p-4 sm:p-8 md:p-16 lg:p-24">
+    <!-- Logo -->
+    <img src="{% static 'image/glowify-logo-black.png' %}" alt="Glowify Logo" class="mb-4 sm:mb-8 md:mb-16 lg:mb-24 h-6 sm:h-7 md:h-8 w-auto">
 
-  <form method="POST">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-      <tr>
-        <td></td>
-        <td><input type="submit" name="submit" value="Daftar" /></td>
-      </tr>
-    </table>
-  </form>
+    <!-- Title -->
+    <h1 class="text-[#333333] text-xl sm:text-2xl md:text-3xl font-semibold mb-4 sm:mb-6 md:mb-8">Create your account</h1>
 
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+    <!-- Register Form -->
+    <form method="POST" action="" class="w-full max-w-xs sm:max-w-sm">
+      {% csrf_token %}
+      <div class="mb-3 sm:mb-4">
+        <label for="id_username" class="block text-[#333333] text-xs sm:text-sm md:text-base mb-1 sm:mb-2">Username</label>
+        <input id="id_username" name="username" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="Enter your username">
+      </div>
+      
+      <div class="mb-3 sm:mb-4">
+        <label for="id_password1" class="block text-[#333333] text-xs sm:text-sm md:text-base mb-1 sm:mb-2">Password</label>
+        <input id="id_password1" name="password1" type="password" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="Enter your password">
+      </div>
+      
+      <div class="mb-3 sm:mb-4">
+        <label for="id_password2" class="block text-[#333333] text-xs sm:text-sm md:text-base mb-1 sm:mb-2">Confirm Password</label>
+        <input id="id_password2" name="password2" type="password" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="Confirm your password">
+      </div>
+      
+      <div class="mb-4 sm:mb-6 md:mb-8">
+        <input class="btn login_btn w-full bg-[#333333] text-[#F5F3EE] py-1 sm:py-2 md:py-3 px-4 rounded transition duration-300 hover:opacity-80 text-xs sm:text-sm md:text-base cursor-pointer" type="submit" value="Register" />
+      </div>
+    </form>
+
+    <!-- Login Link -->
+    <p class="text-xs sm:text-sm md:text-base text-[#333333]">Already have an account? 
+      <a href="{% url 'main:login' %}" class="font-bold hover:opacity-80">Login here</a>
+    </p>
+  </div>
 </div>
-
 {% endblock content %}
