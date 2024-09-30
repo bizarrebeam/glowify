@@ -619,6 +619,7 @@ Ada beberapa hal yang harus diperhatikan, sebab belum tentu semua cookies aman j
 - Cookies pihak ketiga yang digunakan untuk iklan atau pelacakan sering kali dianggap 'invasif' karena melacak aktivitas pengguna di berbagai situs, sehingga menjadi concern privasi. Beberapa browser telah mulai memblokir third-party cookies secara default.
 
 
+
 ## Tugas 4
 ### Implementasi Styling dan Fitur CRUD Produk
 
@@ -747,34 +748,6 @@ Ada beberapa hal yang harus diperhatikan, sebab belum tentu semua cookies aman j
 
 2. Styling di `global.css`:
    - Menambahkan custom styling di `global.css`
-   ```css
-   /* Global base styles */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: 'Poppins', sans-serif;
-  background-color: #F5F3EE;
-  color: #333333;
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6, p, a {
-  margin: 0;
-  padding: 0;
-  color: inherit;
-}
-```
 
 3. Menambahkan styling di page lainnya:
    - `login.html`
