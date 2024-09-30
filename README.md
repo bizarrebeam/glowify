@@ -619,6 +619,498 @@ Ada beberapa hal yang harus diperhatikan, sebab belum tentu semua cookies aman j
 - Cookies pihak ketiga yang digunakan untuk iklan atau pelacakan sering kali dianggap 'invasif' karena melacak aktivitas pengguna di berbagai situs, sehingga menjadi concern privasi. Beberapa browser telah mulai memblokir third-party cookies secara default.
 
 
+## Tugas 4
+### Implementasi Styling dan Fitur CRUD Produk
+
+#### 1. Menambahkan Tailwind ke Aplikasi
+
+1. File `base.html` di folder templates di root project:
+   - Menambahkan tag `<meta name="viewport">` a
+   - Menambahkan script CDN Tailwind di bagian `<head>`.
+
+    ```html
+    <head>
+        {% block meta %}
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% endblock meta %}
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    ```
+
+#### 2. Menambahkan Fitur Edit Produk
+
+1. File`views.py` di subdirektori main:
+   - Menambahkan fungsi `edit_product`.
+
+    ```python
+    def edit_product(request, id):
+
+		product = Product.objects.get(pk=id)
+		form = ProductForm(request.POST or None, request.FILES or None, instance=product)
+	
+		if form.is_valid() and request.method == "POST":
+			form.save()
+			return HttpResponseRedirect(reverse('main:show_main'))
+		
+		context = {'form': form}
+		return render(request, "edit_product.html", context)
+    ```
+
+2. Membuka `urls.py` di subdirektori main:
+   - Menambahkan path URL untuk fungsi `edit_product`.
+
+    ```python
+    from main.views import delete_product
+
+    urlpatterns = [
+        # URL patterns lainnya
+        path('edit-product/<uuid:id>', edit_product, name='edit_product'),
+    ]
+    ```
+
+2. Membuka `urls.py` di subdirektori main:
+   - Menambahkan path URL untuk fungsi `delete_product`.
+
+    ```python
+    from main.views import delete_product
+
+    urlpatterns = [
+        # URL patterns lainnya
+        path('delete-product/<uuid:id>', delete_product, name='delete_product'),
+    ]
+    ```
+
+#### 3. Menampilkan Produk di Halaman Utama
+
+1. Membuka `main.html` di subdirektori templates:
+   - Menambahkan tabel untuk menampilkan daftar produk.
+   - Menambahkan tombol untuk mengedit dan menghapus produk.
+
+    ```html
+    <table>
+        <tr>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Volume (ml)</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.volume }}</td>
+            <td>
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100px; max-height: 100px;">
+                {% else %}
+                <p>No image available</p>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'main:edit_product' product.pk %}">
+                    <button>Edit</button>
+                </a>
+                <a href="{% url 'main:delete_product' product.pk %}">
+                    <button>Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    ```
+
+#### 4. Menambahkan Styling dengan Tailwind
+
+1. Styling di `base.html`**:
+   - Menambahkan script CDN Tailwind dan menghubungkannya dengan `global.css`.
+
+    ```html
+    {% load static %}
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {% block meta %} {% endblock meta %}
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
+      </head>
+      <body>
+        {% block content %} {% endblock content %}
+      </body>
+    </html>
+    ```
+
+2. Styling di `global.css`:
+   - Menambahkan custom styling di `global.css`
+   ```css
+   /* Global base styles */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #F5F3EE;
+  color: #333333;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6, p, a {
+  margin: 0;
+  padding: 0;
+  color: inherit;
+}
+```
+
+3. Menambahkan styling di page lainnya:
+   - `login.html`
+   - `register.html`
+   - `main.html`
+   - `navbar.html`
+   - `footer.html`
+   - `card_product.html`
+   - `add_product.html`
+   - `edit_product.html`
+
+#### 4. Menambahkan Navigation Bar
+
+1. Membuat `navbar.html` di folder templates
+```html
+{% load static %}
+
+<nav class="bg-[#333333] fixed top-0 left-0 z-40 w-screen">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-14 sm:h-16 md:h-20">
+
+	<!-- Logo Title -->
+      <div class="flex items-center">
+        <a href="{% url 'main:show_main' %}">
+          <img src="{% static 'image/glowify-logo.png' %}" alt="glowify logo" class="h-4 sm:h-5 md:h-6">
+        </a>
+      </div>
+      
+      <!-- Navbar Links -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="{% url 'main:show_main' %}" class="text-[#F5F3EE] hover:opacity-60">Home</a>
+        <a href="#" class="text-[#F5F3EE] hover:opacity-60">Products</a>
+        <a href="#" class="text-[#F5F3EE] hover:opacity-60">Categories</a>
+        <a href="#" class="text-[#F5F3EE] hover:opacity-60">Cart</a>
+
+        <!-- Logout Button -->
+        <a href="{% url 'main:logout' %}" class="text-center border border-[#F5F3EE] hover:bg-gray-200 hover:text-[#333333] text-[#F5F3EE] font-bold py-2 px-4 rounded transition duration-300">
+          Logout
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden flex items-center">
+        <button class="mobile-menu-button">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#F5F3EE]" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu hidden md:hidden px-4 w-full">
+    <div class="py-2 space-y-1">
+      <a href="#" class="block text-[#F5F3EE] hover:opacity-60 py-2">Home</a>
+      <a href="#" class="block text-[#F5F3EE] hover:opacity-60 py-2">Products</a>
+      <a href="#" class="block text-[#F5F3EE] hover:opacity-60 py-2">Categories</a>
+      <a href="#" class="block text-[#F5F3EE] hover:opacity-60 py-2">Cart</a>
+
+	<!-- Logout Button for Mobile -->
+      <a href="{% url 'main:logout' %}" class="block text-center border border-[#F5F3EE] hover:bg-gray-200 hover:text-[#333333] text-[#F5F3EE] font-bold py-2 px-4 rounded transition duration-300 mt-2">
+        Logout
+      </a>
+    </div>
+  </div>
+</nav>
+<script>
+
+const btn = document.querySelector("button.mobile-menu-button");
+const menu = document.querySelector(".mobile-menu");
+
+btn.addEventListener("click", () => {
+  menu.classList.toggle("hidden");
+});
+
+</script>
+```
+
+#### 5. Konfigurasi Static Files
+
+1. Di file `settings.py`:
+   - Menambahkan middleware WhiteNoise.
+
+    ```python
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'whitenoise.middleware.WhiteNoiseMiddleware',  # Tambahkan tepat di bawah SecurityMiddleware
+        # Middleware lainnya
+    ]
+    ```
+
+2. Konfigurasi Static Files di `settings.py`:
+
+    ```python
+    STATIC_URL = '/static/'
+    if DEBUG:
+        STATICFILES_DIRS = [
+            BASE_DIR / 'static'  # merujuk ke /static root project pada mode development
+        ]
+    else:
+        STATIC_ROOT = BASE_DIR / 'static'  # merujuk ke /static root project pada mode production
+    ```
+
+#### 6. Menambahkan Footer
+
+1. Membuat`footer.html` di folder templates:
+```html
+{% load static %}
+
+<footer class="bg-[#333333] text-[#F5F3EE] py-6 sm:py-8 md:py-10 text-xs sm:text-sm md:text-base">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col space-y-4 sm:space-y-6 md:space-y-8">
+
+	<!-- Logo -->
+      <div class="flex justify-start">
+        <img src="{% static 'image/glowify-logo.png' %}" alt="glowify logo" class="h-4 sm:h-5 md:h-6">
+      </div>
+
+      <!-- Divider -->
+      <div class="w-full border-t border-[#F5F3EE]"></div>
+
+      <!-- Links and Copyright -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full space-y-2 sm:space-y-0">
+
+        <!-- Copyright -->
+        <div class="text-left">
+          <p class="text-xs sm:text-sm md:text-base">&copy; 2024, bizarrebeams.</p>
+        </div>
+
+        <!-- Links -->
+        <div class="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-3 md:space-x-4 text-left sm:text-right">
+          <a href="#" class="hover:underline text-xs sm:text-sm md:text-base">Privacy Policy</a>
+          <a href="#" class="hover:underline text-xs sm:text-sm md:text-base">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+```
+
+#### 7. Menambahkan Card untuk Produk
+
+1. Membuat `card_product.html` di folder templates:
+```html
+{% load humanize %}
+
+<div class="bg-[#F5F5F5] p-4 sm:p-5 md:p-6 rounded shadow-md">
+
+    <!-- Product Image -->
+    <div class="bg-[#E7E5E0] p-3 sm:p-4 rounded">
+        <img src="{{ product.image.url }}" class="mx-auto object-cover h-36 sm:h-44 md:h-52 w-auto" alt="{{ product.name }}">
+    </div>
+
+	<!-- Product Details -->
+    <div class="text-left mt-3 sm:mt-4">
+        <h3 class="text-sm sm:text-base md:text-lg text-[#333333] mb-1 sm:mb-2">{{ product.name }}</h3>
+        <p class="text-xs sm:text-sm md:text-base text-[#818181] mb-2 sm:mb-3">{{ product.description }}</p>
+        <p class="text-base sm:text-lg md:text-xl font-bold text-[#333333] inline-block mb-1 sm:mb-2">Rp{{ product.price|intcomma }}</p>
+        <p class="text-xxs sm:text-xs md:text-sm text-[#818181] inline-block ml-1 mb-1 sm:mb-2"> /{{ product.volume }} mL</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-2 sm:mt-3 md:mt-4 flex justify-end space-x-2 sm:space-x-3 md:space-x-4">
+        <a href="{% url 'main:edit_product' product.pk %}">
+            <button class="bg-[#333333] text-white py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">EDIT</button>
+        </a>
+        <a href="{% url 'main:delete_product' product.pk %}">
+            <button class="bg-[#F5F5F5] text-[#333333] border border-[#333333] py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">DELETE</button>
+        </a>
+    </div>
+</div>
+```
+
+#### 8. Menambahkan Halaman Register
+
+1. Membuat `register.html` di folder templates:
+```html
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+
+<title>Register</title>
+{% endblock meta %}
+{% block content %}
+
+<div class="flex h-screen">
+
+  <!-- Left side with image and text -->
+  <div class="w-1/2 relative hidden sm:block">
+    <img src="{% static 'image/login-photo.png' %}" alt="Register Photo" class="object-cover w-full h-full">
+    <div class="absolute inset-0 flex justify-center items-end pb-4 sm:pb-8 md:pb-16 lg:pb-24">
+      <p class="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl text-center drop-shadow-md">
+        Discover your radiant glow.<br>One product at a time.
+      </p>
+    </div>
+  </div>
+
+  <!-- Right side with register form -->
+  <div class="w-full sm:w-1/2 flex flex-col justify-center items-center bg-[#F5F3EE] p-4 sm:p-8 md:p-16 lg:p-24">
+
+    <!-- Logo -->
+    <img src="{% static 'image/glowify-logo-black.png' %}" alt="Glowify Logo" class="mb-4 sm:mb-8 md:mb-16 lg:mb-24 h-6 sm:h-7 md:h-8 w-auto">
+
+    <!-- Title -->
+    <h1 class="text-[#333333] text-xl sm:text-2xl md:text-3xl font-semibold mb-4 sm:mb-6 md:mb-8">Create your account</h1>
+
+    <!-- Register Form -->
+    <form method="POST" action="" class="w-full max-w-xs sm:max-w-sm">
+      {% csrf_token %}
+      <div class="mb-3 sm:mb-4">
+        <label for="id_username" class="block text-[#333333] text-xs sm:text-sm md:text-base mb-1 sm:mb-2">Username</label>
+        <input id="id_username" name="username" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="Enter your username">
+      </div>
+      <div class="mb-3 sm:mb-4">
+        <label for="id_password1" class="block text-[#333333] text-xs sm:text-sm md:text-base mb-1 sm:mb-2">Password</label>
+        <input id="id_password1" name="password1" type="password" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="Enter your password">
+      </div>
+
+      <div class="mb-3 sm:mb-4">
+        <label for="id_password2" class="block text-[#333333] text-xs sm:text-sm md:text-base mb-1 sm:mb-2">Confirm Password</label>
+        <input id="id_password2" name="password2" type="password" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="Confirm your password">
+      </div>
+
+      <div class="mb-4 sm:mb-6 md:mb-8">
+        <input class="btn login_btn w-full bg-[#333333] text-[#F5F3EE] py-1 sm:py-2 md:py-3 px-4 rounded transition duration-300 hover:opacity-80 text-xs sm:text-sm md:text-base cursor-pointer" type="submit" value="Register" />
+      </div>
+    </form>
+    
+    <!-- Login Link -->
+    <p class="text-xs sm:text-sm md:text-base text-[#333333]">Already have an account?
+      <a href="{% url 'main:login' %}" class="font-bold hover:opacity-80">Login here</a>
+    </p>
+  </div>
+</div>
+
+{% endblock content %}
+```
+
+#### 9. Menambahkan Halaman Edit Produk
+
+1.  Membuat `edit_product.html` di folder templates:
+```html
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-[#F5F3EE] min-h-screen flex items-center justify-center py-10 sm:py-16 md:py-20 px-10 sm:px-6 lg:px-8">
+  <div class="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl bg-white shadow-md rounded-md p-4 sm:p-6 md:p-8 my-6 sm:my-8 md:my-12">
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-center text-[#333333] mb-4 sm:mb-6 md:mb-8">Edit product</h1>
+    <form method="POST" enctype="multipart/form-data" class="space-y-3 sm:space-y-4 md:space-y-5">
+      {% csrf_token %}
+      <div>
+        <label for="id_name" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Product name</label>
+        <input id="id_name" name="name" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="E.g. COSRX Snail Mucin" value="{{ form.name.value }}">
+      </div>
+      <div>
+        <label for="id_price" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Price</label>
+        <input id="id_price" name="price" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="In Rupiah, e.g. 150000" value="{{ form.price.value }}">
+      </div>
+      <div>
+        <label for="id_description" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Description</label>
+        <textarea id="id_description" name="description" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="E.g. An essence to calm down the skin.">{{ form.description.value }}</textarea>
+      </div>
+      <div>
+        <label for="id_volume" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Volume</label>
+        <input id="id_volume" name="volume" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="In ml, e.g. 150" value="{{ form.volume.value }}">
+      </div>
+      <div>
+        <label for="id_image" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Product Image</label>
+        <input id="id_image" name="image" type="file" class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]">
+      </div>
+      <div>
+        <input type="submit" value="Edit product" class="w-full bg-[#333333] text-[#F5F3EE] py-2 sm:py-2.5 md:py-3 px-4 rounded transition duration-300 hover:bg-gray-200 hover:text-black text-xs sm:text-sm md:text-base cursor-pointer mt-2 sm:mt-3 md:mt-4">
+
+      </div>
+    </form>
+  </div>
+</div>
+
+{% include 'footer.html' %}
+
+{% endblock content %}
+```
+
+#### 10. Menambahkan Halaman Tambah Produk
+
+1.  Membuat `create_product.html` di folder templates:
+```html
+{% extends 'base.html' %}
+{% load static %}
+
+  
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-[#F5F3EE] min-h-screen flex items-center justify-center py-10 sm:py-16 md:py-20 px-10 sm:px-6 lg:px-8">
+  <div class="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl bg-white shadow-md rounded-md p-4 sm:p-6 md:p-8 my-6 sm:my-8 md:my-12">
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-center text-[#333333] mb-4 sm:mb-6 md:mb-8">Add a new product</h1>
+    <form method="POST" enctype="multipart/form-data" class="space-y-3 sm:space-y-4 md:space-y-5">
+      {% csrf_token %}
+      <div>
+        <label for="id_name" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Product name</label>
+        <input id="id_name" name="name" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="E.g. COSRX Snail Mucin">
+      </div>
+      <div>
+        <label for="id_price" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Price</label>
+        <input id="id_price" name="price" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="In Rupiah, e.g. 150000">
+      </div>
+      <div>
+        <label for="id_description" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Description</label>
+        <textarea id="id_description" name="description" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="E.g. An essence to calm down the skin."></textarea>
+      </div>
+      <div>
+        <label for="id_volume" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Volume</label>
+        <input id="id_volume" name="volume" type="text" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border placeholder-[#818181] text-gray-900 focus:outline-none focus:ring-[#333333] focus:border-[#333333] focus:z-10text-xs sm:text-sm md:text-base bg-[#E7E5E0]" placeholder="In ml, e.g. 150">
+      </div>
+      <div>
+        <label for="id_image" class="block text-xs sm:text-sm md:text-base text-[#333333] mb-1 sm:mb-2">Product Image</label>
+        <input id="id_image" name="image" type="file" required class="appearance-none rounded-md relative block w-full px-2 sm:px-3 py-1.5 sm:py-2 md:py-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-xs sm:text-sm md:text-base bg-[#E7E5E0]">
+      </div>
+      <div>
+        <input type="submit" value="Add product" class="w-full bg-[#333333] text-[#F5F3EE] py-2 sm:py-2.5 md:py-3 px-4 rounded transition duration-300 hover:bg-gray-200 hover:text-black text-xs sm:text-sm md:text-base cursor-pointer mt-2 sm:mt-3 md:mt-4">
+      </div>
+    </form>
+  </div>
+</div>
+
+{% include 'footer.html' %}
+
+{% endblock content %}
+```
+
+
 
 
    
