@@ -9,7 +9,7 @@ class Product(models.Model):
     price = models.IntegerField()  
     description = models.TextField()  
     volume = models.IntegerField()
-    image = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='', blank=True, null=True)
 
     @property
     def price_per_ml(self):
