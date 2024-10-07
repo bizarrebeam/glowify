@@ -1,78 +1,232 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+{% endblock meta %}
+
 {% block content %}
 {% include 'navbar.html' %}
 
-  <!-- Hero Section -->
-  <div class="pt-14 sm:pt-16 md:pt-20">
-    <div class="relative w-full h-[70vh] overflow-hidden">
-        <img src="{% static 'image/Display.png' %}" class="w-full h-full object-cover object-center" alt="Glowify Banner">
-        <div class="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div class="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-10">
-            <div class="text-right">
-                <h2 class="text-[#F5F3EE] text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold drop-shadow-lg mb-1 sm:mb-2 md:mb-3">
-                    Ready to glow, <strong>{{ user.username }}</strong>?
-                </h2>
-                <p class="text-[#F5F3EE] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl drop-shadow-lg">
-                    Discover your radiant glow. One product at a time.
-                </p>
+<div class="flex flex-col min-h-screen">
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <div class="pt-14 sm:pt-16 md:pt-20">
+            <div class="relative w-full h-[70vh] overflow-hidden">
+                <img src="{% static 'image/Display.png' %}" class="w-full h-full object-cover object-center" alt="Glowify Banner">
+                <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                <div class="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-10">
+                    <div class="text-right">
+                        <h2 class="text-[#F5F3EE] text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold drop-shadow-lg mb-1 sm:mb-2 md:mb-3">
+                            Ready to glow, <strong>{{ user.username }}</strong>?
+                        </h2>
+                        <p class="text-[#F5F3EE] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl drop-shadow-lg">
+                            Discover your radiant glow. One product at a time.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+
+        <!-- Main Content -->
+        <div class="container mx-auto px-6 sm:px-8 md:px-12 py-8 sm:py-10 md:py-12">
+            <h4 class="text-base sm:text-lg md:text-xl text-[#333333]">SKINCARE · ESSENTIALS</h4>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#333333] mt-2">Love yourself a little more.</h1>
+
+            <!-- Photocard Section -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 py-6 sm:py-8 md:py-10">
+                <img src="{% static 'image/Photocard-1.png' %}" class="object-cover w-full h-auto" alt="Photocard 1">
+                <img src="{% static 'image/Photocard-2.png' %}" class="object-cover w-full h-auto" alt="Photocard 2">
+                <img src="{% static 'image/Photocard-3.png' %}" class="object-cover w-full h-auto" alt="Photocard 3">
+                <img src="{% static 'image/Photocard-4.png' %}" class="object-cover w-full h-auto" alt="Photocard 4">
+            </div>
+
+            <!-- What's For You Section -->
+            <div class="py-6 sm:py-8 md:py-10">
+                <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-6">
+                    <div class="flex items-center flex-grow min-w-0">
+                        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333] whitespace-nowrap mr-3 sm:mr-4">What's for you?</h2>
+                        <hr class="border border-[#333333] flex-grow min-w-[20px]">
+                    </div>
+                    <div class="flex-shrink-0">
+                        <a href="{% url 'main:create_product' %}">
+                            <button class="bg-[#333333] text-[#F5F3EE] py-2 px-4 sm:px-5 text-sm sm:text-base transition duration-300 rounded hover:bg-gray-200 hover:text-black whitespace-nowrap">
+                                ADD NEW PRODUCT
+                            </button>
+                        </a>
+                        <button data-modal-target="crudModal" data-modal-toggle="crudModal" class="btn bg-[#333333] text-[#F5F3EE] py-2 px-4 sm:px-5 text-sm sm:text-base transition duration-300 rounded hover:bg-gray-200 hover:text-black whitespace-nowrap" onclick="showModal();">
+                            ADD NEW PRODUCT BY AJAX
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Cards -->
+            <div id="product_cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10"></div>
+        </div>
+
+        <!-- Last Login Section -->
+        <div class="container mx-auto px-6 sm:px-8 md:px-12 py-4 sm:py-6 md:py-8">
+            <h6 class="text-[#333333] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl opacity-80 text-center">
+                Last login section: {{ last_login }}
+            </h6>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
 </div>
 
-  <!-- Main Content -->
-  <div class="container mx-auto px-6 sm:px-8 md:px-12 py-8 sm:py-10 md:py-12">
-      <h4 class="text-base sm:text-lg md:text-xl text-[#333333]">SKINCARE · ESSENTIALS</h4>
-      <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-[#333333] mt-2">Love yourself a little more.</h1>
-
-      <!-- Photocard Section -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 py-6 sm:py-8 md:py-10">
-          <img src="{% static 'image/Photocard-1.png' %}" class="object-cover w-full h-auto" alt="Photocard 1">
-          <img src="{% static 'image/Photocard-2.png' %}" class="object-cover w-full h-auto" alt="Photocard 2">
-          <img src="{% static 'image/Photocard-3.png' %}" class="object-cover w-full h-auto" alt="Photocard 3">
-          <img src="{% static 'image/Photocard-4.png' %}" class="object-cover w-full h-auto" alt="Photocard 4">
-      </div>
-
-     <!-- What's For You Section -->
-    <div class="py-6 sm:py-8 md:py-10">
-        <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-6">
-            <div class="flex items-center flex-grow min-w-0">
-                <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333] whitespace-nowrap mr-3 sm:mr-4">What's for you?</h2>
-                <hr class="border border-[#333333] flex-grow min-w-[20px]">
-            </div>
-            <div class="flex-shrink-0">
-                <a href="{% url 'main:create_product' %}">
-                    <button class="bg-[#333333] text-[#F5F3EE] py-2 px-4 sm:px-5 text-sm sm:text-base transition duration-300 rounded hover:bg-gray-200 hover:text-black whitespace-nowrap">
-                        ADD NEW PRODUCT
-                    </button>
-                </a>
-            </div>
-        </div>
+<!-- Modal -->
+<div id="crudModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
+  <div id="crudModalContent" class="relative bg-white rounded-lg shadow-lg w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 mx-4 sm:mx-0 transform scale-95 opacity-0 transition-transform transition-opacity duration-300 ease-out">
+    <!-- Modal header -->
+    <div class="flex items-center justify-between p-4 border-b rounded-t">
+      <h3 class="text-xl font-semibold text-gray-900">
+        Add New Product
+      </h3>
+      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" id="closeModalBtn">
+        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="sr-only">Close modal</span>
+      </button>
     </div>
-
-    <!-- Product Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
-        {% if not products %}
-            <div class="col-span-full text-center py-8 sm:py-10 md:py-12">
-                <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333]">We couldn't find anything.</h3>
-                <p class="text-base sm:text-lg md:text-xl text-[#333333] mt-2">Drop yours here, one product at a time.</p>
-            </div>
-        {% else %}
-            {% for product in products %}
-                {% include 'card_product.html' with product=product %}
-            {% endfor %}
-        {% endif %}
+    <!-- Modal body -->
+    <div class="px-6 py-4 space-y-6 form-style">
+      <form id="productForm">
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-700">Product name</label>
+          <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="E.g. COSRX Snail Mucin" required>
+        </div>
+        <div class="mb-4">
+          <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+          <input type="text" id="price" name="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="In Rupiah, e.g. 150000" required>
+        </div>
+        <div class="mb-4">
+          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea id="description" name="description" rows="3" class="mt-1 block w-full h-52 resize-none border border-gray-300 rounded-md p-2" placeholder="E.g. An essence to calm down the skin." required></textarea>
+        </div>
+        <div class="mb-4">
+          <label for="volume" class="block text-sm font-medium text-gray-700">Volume</label>
+          <input type="text" id="volume" name="volume" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="In ml, e.g. 150" required>
+        </div>
+        <div class="mb-4">
+          <label for="image" class="block text-sm font-medium text-gray-700">Product Image</label>
+          <input type="file" id="image" name="image" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+        </div>
+      </form>
+    </div>
+    <!-- Modal footer -->
+    <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
+      <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg" id="cancelButton">Cancel</button>
+      <button type="submit" id="submitProduct" form="productForm" class="bg-[#333333] hover:bg-gray-200 hover:text-black text-white font-bold py-2 px-4 rounded-lg">Save</button>
     </div>
   </div>
-
-  <!-- Last Login Section -->
-  <div class="container mx-auto px-6 sm:px-8 md:px-12 py-4 sm:py-6 md:py-8">
-    <h6 class="text-[#333333] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl opacity-80 text-center">
-        Last login section: {{ last_login }}
-    </h6>
 </div>
 
-  {% include 'footer.html' %}
+<script>
+    async function getProducts() {
+        return fetch("{% url 'main:show_json' %}").then((res) => res.json());
+    }
 
+    async function refreshProducts() {
+        const productCardsContainer = document.getElementById("product_cards");
+        const products = await getProducts();
+        let htmlString = "";
+
+        if (products.length === 0) {
+            htmlString = `
+                <div class="col-span-full text-center py-8 sm:py-10 md:py-12">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333]">We couldn't find anything.</h3>
+                    <p class="text-base sm:text-lg md:text-xl text-[#333333] mt-2">Drop yours here, one product at a time.</p>
+                </div>
+            `;
+        } else {
+            products.forEach((product) => {
+                const name = DOMPurify.sanitize(product.fields.name);
+                const description = DOMPurify.sanitize(product.fields.description);
+                const price = DOMPurify.sanitize(product.fields.price.toString());
+                const volume = DOMPurify.sanitize(product.fields.volume.toString());
+                const image = DOMPurify.sanitize(product.fields.image || '{% static "image.png" %}');
+
+                htmlString += `
+                    <div class="bg-[#F5F5F5] p-4 sm:p-5 md:p-6 rounded shadow-md">
+                        <div class="bg-[#E7E5E0] p-3 sm:p-4 rounded">
+                            <img src="${image}" class="mx-auto object-cover h-36 sm:h-44 md:h-52 w-auto" alt="${name}">
+                        </div>
+                        <div class="text-left mt-3 sm:mt-4">
+                            <h3 class="text-sm sm:text-base md:text-lg text-[#333333] mb-1 sm:mb-2">${name}</h3>
+                            <p class="text-xs sm:text-sm md:text-base text-[#818181] mb-2 sm:mb-3">${description}</p>
+                            <p class="text-base sm:text-lg md:text-xl font-bold text-[#333333] inline-block mb-1 sm:mb-2">Rp${parseInt(price).toLocaleString()}</p>
+                            <p class="text-xxs sm:text-xs md:text-sm text-[#818181] inline-block ml-1 mb-1 sm:mb-2"> /${volume} mL</p>
+                        </div>
+                        <div class="mt-2 sm:mt-3 md:mt-4 flex justify-end space-x-2 sm:space-x-3 md:space-x-4">
+                            <a href="/edit-product/${product.pk}">
+                                <button class="bg-[#333333] text-white py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">EDIT</button>
+                            </a>
+                            <a href="/delete/${product.pk}">
+                                <button class="bg-[#F5F5F5] text-[#333333] border border-[#333333] py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">DELETE</button>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        productCardsContainer.innerHTML = htmlString;
+    }
+
+    refreshProducts();
+
+    const modal = document.getElementById('crudModal');
+    const modalContent = document.getElementById('crudModalContent');
+
+    function showModal() {
+        modal.classList.remove('hidden'); 
+        setTimeout(() => {
+            modalContent.classList.remove('opacity-0', 'scale-95');
+            modalContent.classList.add('opacity-100', 'scale-100');
+        }, 50); 
+    }
+
+    function hideModal() {
+        modalContent.classList.remove('opacity-100', 'scale-100');
+        modalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 150); 
+    }
+
+    document.getElementById("cancelButton").addEventListener("click", hideModal);
+    document.getElementById("closeModalBtn").addEventListener("click", hideModal);
+
+    document.getElementById("productForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        const response = await fetch("{% url 'main:create_product_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        });
+
+        if (response.ok) {
+            hideModal();
+            refreshProducts();
+            document.getElementById("productForm").reset(); 
+        } else {
+            const data = await response.json();
+            const errors = data.errors;
+            for (const [field, messages] of Object.entries(errors)) {
+                const input = document.getElementById(field);
+                const errorContainer = document.createElement('p');
+                errorContainer.className = 'text-red-500 text-xs mt-1';
+                errorContainer.innerText = messages.join(', ');
+                input.parentNode.appendChild(errorContainer);
+            }
+        }
+    });
+</script>
 {% endblock content %}
