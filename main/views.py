@@ -51,7 +51,17 @@ def create_product_ajax(request):
         product = form.save(commit=False)
         product.user = request.user
         product.save()
-        return JsonResponse({"message": "Product created successfully"}, status=201)
+        return JsonResponse({
+            "message": "Product created successfully",
+            "product": {
+                "id": str(product.id),
+                "name": product.name,
+                "price": product.price,
+                "description": product.description,
+                "volume": product.volume,
+                "image": product.image.url if product.image else settings.STATIC_URL + 'image.png'
+            }
+        }, status=201)
     else:
         return JsonResponse({"errors": form.errors}, status=400)
 
@@ -60,10 +70,24 @@ def show_xml(request):
     data = Product.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize('xml', data), content_type='application/xml')
 
+from django.conf import settings
+
 def show_json(request):
-    # data = Product.objects.all()
     data = Product.objects.filter(user=request.user)
-    return HttpResponse(serializers.serialize('json', data), content_type='application/json')
+    product_list = []
+    for product in data:
+        product_dict = {
+            "pk": product.pk,
+            "fields": {
+                "name": product.name,
+                "price": product.price,
+                "description": product.description,
+                "volume": product.volume,
+                "image": product.image.url if product.image else settings.STATIC_URL + 'image.png'
+            }
+        }
+        product_list.append(product_dict)
+    return JsonResponse(product_list, safe=False)
 
 def show_xml_by_id(request, id):
     data = Product.objects.filter(pk=id)
