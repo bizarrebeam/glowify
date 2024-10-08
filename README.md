@@ -1246,6 +1246,433 @@ Grid berguna untuk:
 - Mengatur elemen dalam baris dan kolom dengan design yang lebih 'terstruktur' dikarenakan memiliki grid lines
 - Mengatur ukuran dan posisi elemen dengan lebih presisi.
 
+## Tugas 6
+### Implementasi  Javascript dan AJAX
+
+#### 1. Menambahkan Pesan Error pada Login
+
+- Menambahkan pesan error untuk menampilkan validasi kesalahan pada form login.
+
+```html
+{% if form.errors %}
+    <div class="text-red-500 text-xs mt-1">
+        {{ form.errors }}
+    </div>
+{% endif %}
+```
+
+#### 2. Membuat Fungsi untuk Menambahkan Produk dengan AJAX
+
+- Membuat view baru `create_product_ajax` untuk menangani permintaan POST menggunakan AJAX.
+
+```python
+@csrf_exempt
+@require_POST
+def create_product_ajax(request):
+    form = ProductForm(request.POST, request.FILES)
+    if form.is_valid():
+        product = form.save(commit=False)
+        product.user = request.user
+        product.save()
+        return JsonResponse({
+            "message": "Product created successfully",
+            "product": {
+                "id": str(product.id),
+                "name": product.name,
+                "price": product.price,
+                "description": product.description,
+                "volume": product.volume,
+                "image": product.image.url if product.image else None
+            }
+        }, status=201)
+    else:
+        return JsonResponse({"errors": form.errors}, status=400)
+```
+
+#### 3. Menambahkan Routing untuk Fungsi `create_product_ajax`
+
+- Menambahkan path baru untuk view `create_product_ajax`.
+
+```python
+urlpatterns = [
+    path('create-product-ajax', create_product_ajax, name='create_product_ajax'),
+]
+```
+
+#### 4. Menampilkan Data Produk dengan fetch() API
+
+- Membuat fungsi `refreshProducts` untuk mengambil dan menampilkan data produk menggunakan AJAX GET.
+
+```html
+<script>
+    async function getProducts() {
+        return fetch("{% url 'main:show_json' %}").then((res) => res.json());
+    }
+
+    async function refreshProducts() {
+        const productCardsContainer = document.getElementById("product_cards");
+        const products = await getProducts();
+        let htmlString = "";
+
+        if (products.length === 0) {
+            htmlString = `
+                <div class="col-span-full text-center py-8 sm:py-10 md:py-12">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333]">We couldn't find anything.</h3>
+                    <p class="text-base sm:text-lg md:text-xl text-[#333333] mt-2">Drop yours here, one product at a time.</p>
+                </div>
+            `;
+        } else {
+            products.forEach((product) => {
+                const name = DOMPurify.sanitize(product.fields.name);
+                const description = DOMPurify.sanitize(product.fields.description);
+                const price = DOMPurify.sanitize(product.fields.price.toString());
+                const volume = DOMPurify.sanitize(product.fields.volume.toString());
+                const image = product.fields.image ? DOMPurify.sanitize(product.fields.image) : '{% static "image.png" %}';
+
+                htmlString += `
+                    <div class="bg-[#F5F5F5] p-4 sm:p-5 md:p-6 rounded shadow-md">
+                        <div class="bg-[#E7E5E0] p-3 sm:p-4 rounded">
+                            <img src="${image}" class="mx-auto object-cover h-36 sm:h-44 md:h-52 w-auto" alt="${name}">
+                        </div>
+                        <div class="text-left mt-3 sm:mt-4">
+                            <h3 class="text-sm sm:text-base md:text-lg text-[#333333] mb-1 sm:mb-2">${name}</h3>
+                            <p class="text-xs sm:text-sm md:text-base text-[#818181] mb-2 sm:mb-3">${description}</p>
+                            <p class="text-base sm:text-lg md:text-xl font-bold text-[#333333] inline-block mb-1 sm:mb-2">Rp${parseInt(price).toLocaleString()}</p>
+                            <p class="text-xxs sm:text-xs md:text-sm text-[#818181] inline-block ml-1 mb-1 sm:mb-2"> /${volume} mL</p>
+                        </div>
+                        <div class="mt-2 sm:mt-3 md:mt-4 flex justify-end space-x-2 sm:space-x-3 md:space-x-4">
+                            <a href="/edit-product/${product.pk}">
+                                <button class="bg-[#333333] text-white py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">EDIT</button>
+                            </a>
+                            <a href="/delete/${product.pk}">
+                                <button class="bg-[#F5F5F5] text-[#333333] border border-[#333333] py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">DELETE</button>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        productCardsContainer.innerHTML = htmlString;
+    }
+
+    refreshProducts();
+</script>
+```
+
+#### 5. Membuat Modal Sebagai Form untuk Menambahkan Produk
+
+- Menambahkan modal form untuk menambahkan produk baru menggunakan AJAX POST.
+
+```html
+<!-- Modal -->
+<div id="crudModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
+  <div id="crudModalContent" class="relative bg-white rounded-lg shadow-lg w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 mx-4 sm:mx-0 transform scale-95 opacity-0 transition-transform transition-opacity duration-300 ease-out">
+    <!-- Modal header -->
+    <div class="flex items-center justify-between p-4 border-b rounded-t">
+      <h3 class="text-xl font-semibold text-gray-900">
+        Add New Product
+      </h3>
+      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" id="closeModalBtn">
+        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="sr-only">Close modal</span>
+      </button>
+    </div>
+    <!-- Modal body -->
+    <div class="px-6 py-4 space-y-6 form-style">
+      <form id="productForm">
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-700">Product name</label>
+          <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="E.g. COSRX Snail Mucin" required>
+        </div>
+        <div class="mb-4">
+          <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+          <input type="text" id="price" name="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="In Rupiah, e.g. 150000" required>
+        </div>
+        <div class="mb-4">
+          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea id="description" name="description" rows="3" class="mt-1 block w-full h-52 resize-none border border-gray-300 rounded-md p-2" placeholder="E.g. An essence to calm down the skin." required></textarea>
+        </div>
+        <div class="mb-4">
+          <label for="volume" class="block text-sm font-medium text-gray-700">Volume</label>
+          <input type="text" id="volume" name="volume" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="In ml, e.g. 150" required>
+        </div>
+        <div class="mb-4">
+          <label for="image" class="block text-sm font-medium text-gray-700">Product Image</label>
+          <input type="file" id="image" name="image" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+        </div>
+      </form>
+    </div>
+    <!-- Modal footer -->
+    <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
+      <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg" id="cancelButton">Cancel</button>
+      <button type="submit" id="submitProduct" form="productForm" class="bg-[#333333] hover:bg-gray-200 hover:text-black text-white font-bold py-2 px-4 rounded-lg">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+    const modal = document.getElementById('crudModal');
+    const modalContent = document.getElementById('crudModalContent');
+
+    function showModal() {
+        modal.classList.remove('hidden'); 
+        setTimeout(() => {
+            modalContent.classList.remove('opacity-0', 'scale-95');
+            modalContent.classList.add('opacity-100', 'scale-100');
+        }, 50); 
+    }
+
+    function hideModal() {
+        modalContent.classList.remove('opacity-100', 'scale-100');
+        modalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 150); 
+    }
+
+    document.getElementById("cancelButton").addEventListener("click", hideModal);
+    document.getElementById("closeModalBtn").addEventListener("click", hideModal);
+
+    document.getElementById("productForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        const response = await fetch("{% url 'main:create_product_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        });
+
+        if (response.ok) {
+            hideModal();
+            refreshProducts();
+            document.getElementById("productForm").reset(); 
+        } else {
+            const data = await response.json();
+            const errors = data.errors;
+            for (const [field, messages] of Object.entries(errors)) {
+                const input = document.getElementById(field);
+                const errorContainer = document.createElement('p');
+                errorContainer.className = 'text-red-500 text-xs mt-1';
+                errorContainer.innerText = messages.join(', ');
+                input.parentNode.appendChild(errorContainer);
+            }
+        }
+    });
+</script>
+```
+
+#### 6. Menambahkan Data Produk dengan AJAX
+
+- Menambahkan fungsi untuk menangani pengiriman form menggunakan AJAX POST.
+
+```html
+<script>
+    document.getElementById("productForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        const response = await fetch("{% url 'main:create_product_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        });
+
+        if (response.ok) {
+            hideModal();
+            refreshProducts();
+            document.getElementById("productForm").reset(); 
+        } else {
+            const data = await response.json();
+            const errors = data.errors;
+            for (const [field, messages] of Object.entries(errors)) {
+                const input = document.getElementById(field);
+                const errorContainer = document.createElement('p');
+                errorContainer.className = 'text-red-500 text-xs mt-1';
+                errorContainer.innerText = messages.join(', ');
+                input.parentNode.appendChild(errorContainer);
+            }
+        }
+    });
+</script>
+```
+
+#### 7. Melindungi Aplikasi dari Cross Site Scripting (XSS)
+
+- Menggunakan DOMPurify untuk membersihkan data yang diambil dari server sebelum ditampilkan di halaman.
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<script>
+    async function refreshProducts() {
+        const productCardsContainer = document.getElementById("product_cards");
+        const products = await getProducts();
+        let htmlString = "";
+
+        if (products.length === 0) {
+            htmlString = `
+                <div class="col-span-full text-center py-8 sm:py-10 md:py-12">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333]">We couldn't find anything.</h3>
+                    <p class="text-base sm:text-lg md:text-xl text-[#333333] mt-2">Drop yours here, one product at a time.</p>
+                </div>
+            `;
+        } else {
+            products.forEach((product) => {
+                const name = DOMPurify.sanitize(product.fields.name);
+                const description = DOMPurify.sanitize(product.fields.description);
+                const price = DOMPurify.sanitize(product.fields.price.toString());
+                const volume = DOMPurify.sanitize(product.fields.volume.toString());
+                const image = product.fields.image ? DOMPurify.sanitize(product.fields.image) : '{% static "image.png" %}';
+
+                htmlString += `
+                    <div class="bg-[#F5F5F5] p-4 sm:p-5 md:p-6 rounded shadow-md">
+                        <div class="bg-[#E7E5E0] p-3 sm:p-4 rounded">
+                            <img src="${image}" class="mx-auto object-cover h-36 sm:h-44 md:h-52 w-auto" alt="${name}">
+                        </div>
+                        <div class="text-left mt-3 sm:mt-4">
+                            <h3 class="text-sm sm:text-base md:text-lg text-[#333333] mb-1 sm:mb-2">${name}</h3>
+                            <p class="text-xs sm:text-sm md:text-base text-[#818181] mb-2 sm:mb-3">${description}</p>
+                            <p class="text-base sm:text-lg md:text-xl font-bold text-[#333333] inline-block mb-1 sm:mb-2">Rp${parseInt(price).toLocaleString()}</p>
+                            <p class="text-xxs sm:text-xs md:text-sm text-[#818181] inline-block ml-1 mb-1 sm:mb-2"> /${volume} mL</p>
+                        </div>
+                        <div class="mt-2 sm:mt-3 md:mt-4 flex justify-end space-x-2 sm:space-x-3 md:space-x-4">
+                            <a href="/edit-product/${product.pk}">
+                                <button class="bg-[#333333] text-white py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">EDIT</button>
+                            </a>
+                            <a href="/delete/${product.pk}">
+                                <button class="bg-[#F5F5F5] text-[#333333] border border-[#333333] py-1 sm:py-1.5 md:py-2 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm rounded hover:bg-[#818181] hover:text-black transition duration-300">DELETE</button>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        productCardsContainer.innerHTML = htmlString;
+    }
+
+    refreshProducts();
+</script>
+```
+
+#### 8. Membersihkan Data dengan DOMPurify
+- Menggunakan DOMPurify untuk membersihkan data yang diambil dari server sebelum ditampilkan di halaman.
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<script>
+    async function getProducts() {
+        return fetch("{% url 'main:show_json' %}").then((res) => res.json());
+    }
+
+    async function refreshProducts() {
+        const productCardsContainer = document.getElementById("product_cards");
+        const products = await getProducts();
+        let htmlString = "";
+
+        if (products.length === 0) {
+            htmlString = `
+                <div class="col-span-full text-center py-8 sm:py-10 md:py-12">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#333333]">We couldn't find anything.</h3>
+                    <p class="text-base sm:text-lg md:text-xl text-[#333333] mt-2">Drop yours here, one product at a time.</p>
+                </div>
+            `;
+        } else {
+            products.forEach((product) => {
+                const name = DOMPurify.sanitize(product.fields.name);
+                const description = DOMPurify.sanitize(product.fields.description);
+                const price = DOMPurify.sanitize(product.fields.price.toString());
+                const volume = DOMPurify.sanitize(product.fields.volume.toString());
+                const image = DOMPurify.sanitize(product.fields.image || '{% static "image.png" %}');
+
+                ...
+</script>
+```
+
+### Jawaban dari Tugas 6
+#### 1. Manfaat penggunaan JavaScript dalam web development
+- Membuat halaman web menjadi lebih interaktif. Misalnya, di `glowify`, JS digunakan untuk membuka dan menutup modal form saat menambahkan produk baru.
+
+    ```html
+    <script>
+        function showModal() {
+            document.getElementById('crudModal').classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('crudModal').classList.add('hidden');
+        }
+    </script>
+    ```
+
+-  AJAX (Asynchronous JavaScript and XML) membantu mengambil dan mengirim data ke server tanpa perlu me-refresh halaman. 
+    ```html
+    <script>
+        async function refreshProducts() {
+            const response = await fetch('/path/to/api');
+            const products = await response.json();
+            // Menampilkan produk di halaman
+        }
+    </script>
+    ```
+
+- JS membantu validasi form di sisi klien sebelum data dikirim ke server. Di `glowify`, dapat dipastikan dulu bahwa semua field diisi dengan benar sebelum mengirim data produk baru.
+
+    ```html
+    <script>
+        document.getElementById("productForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            // Validasi form di sini
+            // Jika valid, kirim data ke server
+        });
+    </script>
+    ```
+
+- JS membuat pengalaman pengguna yang lebih responsif. Misalnya, di `glowify`, setelah produk baru ditambahkan, daftar produk diperbarui secara otomatis tanpa perlu me-refresh halaman. Dari sisi penggunaan akan terasa lebih responsif dan mudah digunakan.
+
+#### 2. Fungsi `await` ketika menggunakan `fetch`
+Fungsi adalah untuk menunggu hingga permintaan HTTP selesai dan responsnya diterima sebelum melanjutkan eksekusi kode berikutnya. Dalam `glowify`, misalnya saat mengambil data produk dari server, gunakan `await` agar JavaScript menunggu hingga data produk benar-benar diterima sebelum mencoba memproses dan menampilkan data tersebut di halaman.
+
+Jika tidak menggunakan `await`, maka JavaScript tidak akan menunggu respons dari `fetch()` dan langsung melanjutkan eksekusi kode berikutnya. Program berpotensi mencoba memproses data yang belum diterima, yang akan menyebabkan kesalahan atau data yang tidak lengkap ditampilkan. Misalnya, di `glowify`, jika tidak menggunakan `await` saat mengambil data produk, program mencoba menampilkan daftar produk sebelum data tersebut benar-benar tersedia, sehingga halaman bisa menampilkan data yang kosong atau tidak lengkap.
+
+ `await` memastikan bahwa data produk sudah siap sebelum ditampilkan, sehingga pengalaman pengguna menjadi lebih baik.
+
+#### 3. Mengapa diperlukan _decorator_ `csrf_exempt` pada _view_ yang akan digunakan untuk AJAX `POST`
+Dikarenakan decorator ini menonaktifkan perlindungan CSRF (Cross-Site Request Forgery) untuk view tersebut. Dalam `glowify`, misalnya saat membuat view untuk menambahkan produk baru menggunakan AJAX POST, gunakan `csrf_exempt` agar permintaan AJAX dari klien dapat diterima oleh server tanpa memerlukan token CSRF.
+
+CSRF adalah jenis serangan di mana penyerang dapat membuat permintaan yang tidak sah atas nama pengguna yang sah (seperti penjelasan pada Tugas 2). Django secara default melindungi aplikasi dari serangan ini dengan memeriksa token CSRF pada setiap permintaan POST. Namun, ketika menggunakan AJAX untuk mengirim data, token CSRF mungkin tidak selalu tersedia atau dikirim dengan benar, terutama jika tidak dikonfigurasi dengan benar di JavaScript.
+
+`csrf_exempt`menonaktifkan pemeriksaan token CSRF untuk view tertentu, sehingga permintaan AJAX dapat diterima tanpa masalah. Menonaktifkan perlindungan CSRF dapat membuka celah keamanan jika tidak digunakan dengan hati-hati. Oleh karena itu, perlu dipastikan bahwa view yang menggunakan `csrf_exempt` hanya menerima permintaan dari sumber yang tepercaya.
+
+#### Mengapa pembersihan data _input_ pengguna dilakukan di belakang (_backend_) juga, tidak dilakukan di _frontend_ saja?
+Untuk memastikan bahwa data yang diterima oleh server adalah valid dan aman. Dalam `glowify`, pembersihan data digunakan untuk mencegah serangan seperti Cross-Site Scripting (XSS) seperti yang dijelaskan pada tutorial. tidak hanya sekedar tampilan frontend, tetapi juga memastikan bahwa data yang disimpan di database (sisi yang diurusi backend) adalah data yang sesuai dengan yang diharapkan.
+
+Misalnya, ketika pengguna mengirimkan data produk baru melalui form, data tersebut akan diproses oleh view di backend. Di sini, Django Forms digunakan untuk memvalidasi dan membersihkan data input. Django Forms secara otomatis akan memeriksa apakah data yang dimasukkan sesuai dengan tipe data yang diharapkan dan akan membersihkan data dari karakter-karakter yang tidak diinginkan.
+
+Contoh pada `glowify` adalah ketika pengguna menambahkan produk baru melalui form. Data yang dikirimkan oleh pengguna akan diterima oleh view `create_product_ajax`. Di view ini,  `ProductForm` akan memvalidasi dan membersihkan data. Jika data valid, produk akan disimpan ke dalam database. Jika tidak, pesan error akan dikembalikan ke pengguna.
+
+```python
+@csrf_exempt
+@require_POST
+def create_product_ajax(request):
+    form = ProductForm(request.POST, request.FILES)
+    if form.is_valid():
+        product = form.save(commit=False)
+        product.user = request.user
+        product.save()
+        return JsonResponse({"message": "Product created successfully"}, status=201)
+    else:
+        return JsonResponse({"errors": form.errors}, status=400)
+```
+
+
 
    
 
