@@ -12,6 +12,8 @@ from django.utils.html import strip_tags
 from main.forms import ProductForm
 from main.models import Product
 import datetime
+import json
+
 
 @login_required(login_url='/login')
 def show_main(request):
@@ -42,7 +44,6 @@ def create_product(request):
     context = {'form': form}
     return render(request, "create_product.html", context)
 
-# altered from tutorial, supaya pesan error bisa muncul meskipun di-POST via 
 @csrf_exempt
 @require_POST
 def create_product_ajax(request):
@@ -150,3 +151,21 @@ def delete_product(request, id):
     product = Product.objects.get(pk=id)
     product.delete()
     return HttpResponseRedirect(reverse('main:show_main'))
+
+@csrf_exempt
+def create_product_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        new_product = Product.objects.create(
+            user=request.user,
+            name=data["name"],
+            price=int(data["price"]),
+            volume=int(data["volume"]),
+            description=data["description"],
+        )
+
+        new_product.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)

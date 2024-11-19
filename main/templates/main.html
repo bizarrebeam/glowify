@@ -144,10 +144,10 @@
         } else {
             products.forEach((product) => {
                 const name = DOMPurify.sanitize(product.fields.name);
-            const description = DOMPurify.sanitize(product.fields.description);
-            const price = DOMPurify.sanitize(product.fields.price.toString());
-            const volume = DOMPurify.sanitize(product.fields.volume.toString());
-            const image = product.fields.image ? DOMPurify.sanitize(product.fields.image) : '{% static "image.png" %}';
+                const description = DOMPurify.sanitize(product.fields.description);
+                const price = DOMPurify.sanitize(product.fields.price.toString());
+                const volume = DOMPurify.sanitize(product.fields.volume.toString());
+                const image = product.fields.image ? DOMPurify.sanitize(product.fields.image) : '{% static "image.png" %}';
 
                 htmlString += `
                     <div class="bg-[#F5F5F5] p-4 sm:p-5 md:p-6 rounded shadow-md">
