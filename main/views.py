@@ -1,3 +1,6 @@
+import base64
+import os
+import uuid
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -78,7 +81,7 @@ def show_json(request):
     product_list = []
     for product in data:
         product_dict = {
-            "pk": product.pk,
+            "pk": str(product.id),
             "fields": {
                 "name": product.name,
                 "price": product.price,
@@ -155,17 +158,44 @@ def delete_product(request, id):
 @csrf_exempt
 def create_product_flutter(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        new_product = Product.objects.create(
-            user=request.user,
-            name=data["name"],
-            price=int(data["price"]),
-            volume=int(data["volume"]),
-            description=data["description"],
-        )
-
-        new_product.save()
-
-        return JsonResponse({"status": "success"}, status=200)
-    else:
-        return JsonResponse({"status": "error"}, status=401)
+        try:
+            data = json.loads(request.body)
+            
+            # base64 image
+            image_data = data.get('image', '')
+            image_path = None
+            if image_data:
+                try:
+                    # decode base64
+                    image_bytes = base64.b64decode(image_data)
+                    
+                    # unique filename
+                    filename = f"{uuid.uuid4()}.jpg"
+                    filepath = f'product_images/{filename}'
+                    
+                    os.makedirs(os.path.join(settings.MEDIA_ROOT, 'product_images'), exist_ok=True)
+                    
+                    # save image
+                    with open(os.path.join(settings.MEDIA_ROOT, filepath), 'wb') as f:
+                        f.write(image_bytes)
+                    
+                    image_path = filepath
+                except Exception as e:
+                    print(f"Error saving image: {e}")
+                    return JsonResponse({"status": "error", "message": str(e)}, status=400)
+            
+            new_product = Product.objects.create(
+                user=request.user,
+                name=data["name"],
+                price=int(data["price"]),
+                volume=int(data["volume"]),
+                description=data["description"],
+                image=image_path
+            )
+            
+            return JsonResponse({"status": "success", "message": "Product created successfully"}, status=200)
+            
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=405)
